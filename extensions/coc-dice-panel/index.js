@@ -7,6 +7,107 @@
         {n:'急救',i:'🏥'},{n:'驾驶(汽车)',i:'🚗'},{n:'信用评级',i:'💰'}
     ];
     var sanV=70, sanM=99, hpV=11, hpM=11;
+    var charId = null;
+    var charSkills = {};
+
+    // ==================== CHARACTER DB SYNC ====================
+    async function loadCharacter() {
+        try {
+            // Try loading pre-gen character
+            var r = await fetch(API+'/character/'+(charId||'pregen'));
+            if (!r.ok) { createPregen(); return; }
+            var d = await r.json();
+            charId = d.id;
+            sanV = d.san_current || 70; sanM = d.san_max || 99;
+            hpV = d.hp_current || 11; hpM = d.hp_max || 11;
+            if (d.skills) d.skills.forEach(function(s){ charSkills[s.skill_name] = s.current_value; });
+            upd();
+            console.log('[CoC] Character loaded:', d.name, 'SAN', sanV, 'Skills:', Object.keys(charSkills).length);
+        } catch(e){ console.error('[CoC] Char load failed:', e); }
+    }
+
+    async function createPregen() {
+        try {
+            var r = await fetch(API+'/character', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({id:'pregen', name:'詹姆斯·卡特', occupation_name:'私家侦探',
+                    str:60, con:50, siz:60, dex:55, int_:75, pow:70, edu:70, luk:65,
+                    hp_max:11, hp_current:11, mp_max:14, mp_current:14, san_max:99, san_current:70, san_start:70,
+                    credit_rating:30, cash:60, assets:300,
+                    traits:'左手受伤,极度恐高', injuries_scars:'左手旧伤',
+                    personal_description:'戴着圆框眼镜，穿旧风衣', ideology:'真相值得任何代价',
+                    significant_person:'失踪的妹妹艾米莉', meaningful_location:'童年的海边小屋',
+                    treasured_possession:'父亲的银质徽章'})
+            });
+            var d = await r.json();
+            charId = d.id;
+            var skills = [
+                {name:'侦查',value:70,base:25,occupation:35,interest:10},
+                {name:'聆听',value:40,base:20,occupation:0,interest:20},
+                {name:'图书馆使用',value:60,base:20,occupation:30,interest:10},
+                {name:'心理学',value:60,base:10,occupation:40,interest:10},
+                {name:'潜行',value:30,base:20,occupation:0,interest:10},
+                {name:'话术',value:40,base:5,occupation:25,interest:10},
+                {name:'闪避',value:27,base:27,occupation:0,interest:0},
+                {name:'格斗(斗殴)',value:50,base:25,occupation:0,interest:25},
+                {name:'射击(手枪)',value:40,base:20,occupation:0,interest:20},
+                {name:'急救',value:30,base:30,occupation:0,interest:0},
+                {name:'驾驶(汽车)',value:30,base:20,occupation:0,interest:10},
+                {name:'信用评级',value:30,base:0,occupation:30,interest:0}
+            ];
+            skills.forEach(function(s){ charSkills[s.name] = s.value; });
+            await fetch(API+'/character/'+d.id+'/skills', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skills:skills})});
+            console.log('[CoC] Pre-gen character created:', d.name);
+        } catch(e){ console.error('[CoC] Pregen failed:', e); }
+    }
+
+    async function saveSanHP() {
+        if (!charId) return;
+        try {
+            await fetch(API+'/character/'+charId+'/san', {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({newSAN:sanV})});
+            await fetch(API+'/character/'+charId+'/hp', {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({newHP:hpV})});
+        } catch(e){}
+    }
+
+    loadCharacter();
+    var kpPromptCache = null;
+    var kpPromptEnabled = true;
+
+    // ==================== KP PROMPT INJECTION ====================
+    async function loadKpPrompt() {
+        try {
+            var r = await fetch(API+'/prompt/system', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({characterSummary:'詹姆斯·卡特 - 私家侦探, SAN '+sanV+'/'+sanM})
+            });
+            var d = await r.json();
+            kpPromptCache = d.prompt;
+        } catch(e) { console.error('[CoC] KP prompt load failed:', e); }
+    }
+
+    function injectKpPrompt() {
+        if (!kpPromptEnabled || !kpPromptCache) return;
+        try {
+            var ctx = SillyTavern && SillyTavern.getContext && SillyTavern.getContext();
+            if (!ctx) return;
+            if (ctx.extensionPrompts && !ctx.extensionPrompts['coc-kp']) {
+                ctx.extensionPrompts = ctx.extensionPrompts || {};
+                ctx.extensionPrompts['coc-kp'] = kpPromptCache;
+            }
+            if (ctx.eventSource) {
+                ctx.eventSource.on('generate', function(data) {
+                    if (kpPromptCache && kpPromptEnabled) {
+                        data.systemPrompt = kpPromptCache + '\n\n' + (data.systemPrompt || '');
+                    }
+                });
+            }
+        } catch(e) {}
+    }
+
+    loadKpPrompt();
+    setTimeout(injectKpPrompt, 3000);
+    setInterval(function(){ kpPromptCache=null; loadKpPrompt(); }, 300000);
 
     function build() {
         var h = '';
@@ -78,8 +179,9 @@
             b.onmouseenter = function(){ this.style.background='#1f6feb'; this.style.borderColor='#58a6ff'; };
             b.onmouseleave = function(){ this.style.background='#161b22'; this.style.borderColor='#21262d'; };
             b.onclick = function(){
-                var v = prompt(this.dataset.s+' 技能值 (1-99):', '50');
-                if (v) roll(this.dataset.s, parseInt(v)||50);
+                var skill = this.dataset.s;
+                var val = charSkills[skill] || 50;
+                roll(skill, val);
             };
         });
         // Quick action buttons
@@ -100,10 +202,11 @@
     }
 
     function upd() {
-        var s = document.querySelector('#coc-san span:nth-child(2)');
+        var s = document.querySelector('#coc-san span:nth-child(3)');
         if (s) s.textContent = sanV;
-        var h = document.querySelector('#coc-hp span:nth-child(2)');
+        var h = document.querySelector('#coc-hp span:nth-child(3)');
         if (h) h.textContent = hpV;
+        saveSanHP();
     }
 
     async function roll(skill, val) {

@@ -54,10 +54,21 @@ async function init(router) {
     // SAN CHECK
     router.post('/roll/san-check', (req, res) => {
         const { currentSAN, sanLoss, reason } = req.body;
-        if (currentSAN === undefined || !sanLoss) {
+        if (currentSAN == null || sanLoss == null) {
             return res.status(400).json({ error: 'currentSAN and sanLoss required' });
         }
         try { res.json(resolveSanCheck(currentSAN, sanLoss, reason || '')); }
+        catch (e) { res.status(400).json({ error: e.message }); }
+    });
+
+    // SAN check via GET (convenience for testing)
+    router.get('/roll/san-check', (req, res) => {
+        const currentSAN = parseInt(req.query.currentSAN);
+        const sanLoss = req.query.sanLoss;
+        if (isNaN(currentSAN) || !sanLoss) {
+            return res.status(400).json({ error: 'currentSAN and sanLoss required' });
+        }
+        try { res.json(resolveSanCheck(currentSAN, sanLoss, req.query.reason || '')); }
         catch (e) { res.status(400).json({ error: e.message }); }
     });
 
@@ -134,7 +145,7 @@ async function init(router) {
 
     router.post('/generate/san-check-prompt', (req, res) => {
         const { currentSAN, sanLoss, reason, currentScene } = req.body;
-        if (!currentSAN || !sanLoss) {
+        if (currentSAN == null || !sanLoss) {
             return res.status(400).json({ error: 'currentSAN and sanLoss required' });
         }
         const result = resolveSanCheck(currentSAN, sanLoss, reason || '');

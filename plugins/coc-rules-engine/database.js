@@ -5,8 +5,13 @@ let Database;
 try {
     Database = require('better-sqlite3');
 } catch {
-    // Fallback: use the project node_modules if the plugin doesn't have its own
-    Database = require('/home/xhaoshen/projects/st-coc-platform/node_modules/better-sqlite3');
+    try {
+        // Try project node_modules (primary development location)
+        const projModules = '/home/xhaoshen/projects/st-coc-platform/node_modules';
+        Database = require(require.resolve('better-sqlite3', { paths: [projModules] }));
+    } catch {
+        throw new Error('better-sqlite3 not found. Install: npm install better-sqlite3');
+    }
 }
 
 const path = require('path');
@@ -101,7 +106,7 @@ function initDB() {
  */
 function createCharacter(data) {
     const d = initDB();
-    const id = `char_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const id = data.id || `char_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
     const stmt = d.prepare(`
         INSERT INTO characters (id, name, era, occupation_code, occupation_name,

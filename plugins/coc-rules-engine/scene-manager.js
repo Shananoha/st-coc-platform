@@ -24,8 +24,8 @@ Mr. Knott 是一个消瘦的中年男人，穿着过时但整洁的西装。他�
             secret: '他自己也害怕那栋房子——不是不想住，是不敢进去'
         }],
         clues: [
-            { id: 'c1', severity: 'core', text: 'Mr. Knott 委托你调查 Corbitt 宅邸。他提供了一份钥匙、房产文件和报纸剪报。报酬：$20/day + 费用报销。', trigger: 'auto' },
-            { id: 'c2', severity: 'core', text: '波士顿环球报剪报：标题"鬼屋之谜？Corbitt 宅邸的离奇死亡事件"。三任租户在一年内非正常死亡。', trigger: 'auto' }
+            { id: 'c1', severity: 'core', success: 'Mr. Knott 委托你调查 Corbitt 宅邸。他提供了一份钥匙、房产文件和报纸剪报。报酬：$20/day + 费用报销。', fail_forward: 'Mr. Knott 犹豫了一下，但最终还是把钥匙和文件推过桌面。"请帮帮我，卡特先生。我不知道还能找谁。"', trigger: 'auto' },
+            { id: 'c2', severity: 'core', success: '波士顿环球报剪报：标题"鬼屋之谜？Corbitt 宅邸的离奇死亡事件"。三任租户在一年内非正常死亡。', fail_forward: '你注意到 Knott 的文件袋里有一份泛黄的剪报。他不太情愿地递给你——标题让你心头一紧。', trigger: 'auto' }
         ],
         exits: [{ to: 'house', condition: '玩家接受委托，前往 Corbitt 宅邸' }],
         san_triggers: []
@@ -42,10 +42,10 @@ Mr. Knott 是一个消瘦的中年男人，穿着过时但整洁的西装。他�
 通往地下室的楼梯藏在厨房的储物间后面。`,
         npcs: [],
         clues: [
-            { id: 'c3', severity: 'core', text: '一楼书房中发现了一本日记。翻开最后一页，字迹潦草而疯狂："我已经准备好了。今晚在地下室。愿主怜悯我的灵魂。——Walter Corbitt，1897年10月31日"', trigger: '侦查或图书馆使用' },
-            { id: 'c4', severity: 'auxiliary', text: '厨房的碗柜里有一把生锈的切肉刀。刀刃上有暗褐色的污渍——不是锈。', trigger: '侦查' },
-            { id: 'c5', severity: 'auxiliary', text: '从客厅的窗户往外看，你注意到后院的泥土最近被翻动过。土里似乎埋着什么东西。', trigger: '侦查或聆听' },
-            { id: 'c6', severity: 'core', text: '通往地下室的楼梯很窄，木台阶在你脚下发出不祥的吱呀声。空气变得潮湿、寒冷，带着一股说不清的甜腻气味。地下室的角落里，有一个……棺材。', trigger: '走向地下室' }
+            { id: 'c3', severity: 'core', success: '一楼书房中发现了一本日记。翻开最后一页，字迹潦草而疯狂："我已经准备好了。今晚在地下室。愿主怜悯我的灵魂。——Walter Corbitt，1897年10月31日"', fail_forward: '你在书房翻找了很久。日记夹在一堆旧账本中间——但当你终于找到它时，一个小时的宝贵时间已经过去了。窗外的天色暗了下来。', trigger: '侦查或图书馆使用' },
+            { id: 'c4', severity: 'auxiliary', success: '厨房的碗柜里有一把生锈的切肉刀。刀刃上有暗褐色的污渍——不是锈。你的直觉告诉你这是干涸的血迹。', fail_forward: '你检查了厨房，但没有仔细翻找碗柜深处。或许你错过了什么——一把刀，或者其他锋利的东西？', trigger: '侦查' },
+            { id: 'c5', severity: 'auxiliary', success: '从客厅的窗户往外看，你注意到后院的泥土最近被翻动过。土里似乎埋着什么东西。也许是旧物，也许不是。', fail_forward: '你瞥了一眼窗外，但注意力被室内的阴森气氛分散了。也许等天再暗一些，你会注意到后院有什么不对劲。', trigger: '侦查或聆听' },
+            { id: 'c6', severity: 'core', success: '通往地下室的楼梯很窄，木台阶在你脚下发出不祥的吱呀声。空气变得潮湿、寒冷，带着一股说不清的甜腻气味。地下室的角落里，有一个……棺材。', fail_forward: '你在房子后面找了很久才找到地下室入口——一扇藏在储物间后面的矮门。在你摸索的时间里，太阳已经完全落山了。楼梯很窄，木台阶在你脚下发出不祥的吱呀声。', trigger: '走向地下室' }
         ],
         exits: [{ to: 'basement', condition: '玩家找到并进入地下室' }],
         san_triggers: []
