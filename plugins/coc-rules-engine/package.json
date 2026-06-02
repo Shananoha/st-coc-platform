@@ -1,0 +1,6 @@
+{
+  "name": "coc-rules-engine",
+  "version": "0.1.0",
+  "description": "CoC 7e deterministic rules engine for SillyTavern - dice, SAN, skill checks, combat",
+  "main": "index.js"
+}

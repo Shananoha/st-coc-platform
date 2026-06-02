@@ -1,0 +1,145 @@
+// CoC Rules Engine - Server Plugin for SillyTavern
+// Provides deterministic dice rolling, SAN management, and character state APIs.
+// Pure logic extracted to: dice-engine.js, san-engine.js
+
+const express = require('express');
+const { resolveSkillCheck, rollDamage } = require('./dice-engine');
+const { resolveSanCheck } = require('./san-engine');
+const { createCharacter, getCharacter, updateSAN, updateHP, setSkills } = require('./database');
+const { buildPass1Prompt, buildPass2Prompt, buildSanPass1Prompt } = require('./two-pass-generator');
+
+const info = {
+    id: 'coc-rules-engine',
+    name: 'CoC Rules Engine',
+    description: 'CoC 7e deterministic rules engine - dice rolling, SAN management, skill checks, and combat resolution'
+};
+
+async function init(router) {
+    const ver = require('./package.json').version;
+    console.log(`🎲 CoC Rules Engine v${ver} loaded`);
+    console.log('   API: /api/plugins/coc-rules-engine');
+
+    // HEALTH
+    router.get('/health', (_req, res) => {
+        res.json({ status: 'ok', version: ver, timestamp: new Date().toISOString() });
+    });
+
+    // ROLL SINGLE DIE
+    router.get('/roll/d:faces', (req, res) => {
+        const faces = parseInt(req.params.faces);
+        if (isNaN(faces) || faces < 2) return res.status(400).json({ error: 'Invalid die faces' });
+        res.json({ faces, roll: Math.floor(Math.random() * faces) + 1 });
+    });
+
+    // SKILL CHECK
+    router.post('/roll/skill-check', (req, res) => {
+        const { skillName, skillValue, difficulty } = req.body;
+        if (!skillName || skillValue === undefined) {
+            return res.status(400).json({ error: 'skillName and skillValue required' });
+        }
+        const roll = Math.floor(Math.random() * 100) + 1;
+        const result = resolveSkillCheck(skillValue, roll, difficulty || 'regular');
+        res.json({ skillName, skillValue, roll, ...result });
+    });
+
+    // DAMAGE ROLL
+    router.post('/roll/damage', (req, res) => {
+        const { formula } = req.body;
+        if (!formula) return res.status(400).json({ error: 'formula required' });
+        try { res.json(rollDamage(formula)); } catch (e) { res.status(400).json({ error: e.message }); }
+    });
+
+    // SAN CHECK
+    router.post('/roll/san-check', (req, res) => {
+        const { currentSAN, sanLoss, reason } = req.body;
+        if (currentSAN === undefined || !sanLoss) {
+            return res.status(400).json({ error: 'currentSAN and sanLoss required' });
+        }
+        try { res.json(resolveSanCheck(currentSAN, sanLoss, reason || '')); }
+        catch (e) { res.status(400).json({ error: e.message }); }
+    });
+
+    // BONUS/PENALTY DIE
+    router.post('/roll/bonus', (req, res) => {
+        const { type } = req.body;
+        const t1 = Math.floor(Math.random() * 10), t2 = Math.floor(Math.random() * 10);
+        const units = Math.floor(Math.random() * 10);
+        const adjTens = (type === 'bonus') ? Math.min(t1, t2) : Math.max(t1, t2);
+        res.json({ type, originalRolls: [t1 * 10 + units, t2 * 10 + units], adjustedRoll: adjTens * 10 + units });
+    });
+
+    // ==================== CHARACTER MANAGEMENT ====================
+    router.post('/character', (req, res) => {
+        try {
+            const char = createCharacter(req.body);
+            res.status(201).json(char);
+        } catch (e) {
+            res.status(400).json({ error: e.message });
+        }
+    });
+
+    router.get('/character/:id', (req, res) => {
+        const char = getCharacter(req.params.id);
+        if (!char) return res.status(404).json({ error: 'Character not found' });
+        res.json(char);
+    });
+
+    router.put('/character/:id/san', (req, res) => {
+        const { newSAN } = req.body;
+        if (newSAN === undefined) return res.status(400).json({ error: 'newSAN required' });
+        try {
+            const char = updateSAN(req.params.id, newSAN);
+            res.json({ id: char.id, san_current: char.san_current, san_max: char.san_max });
+        } catch (e) {
+            res.status(400).json({ error: e.message });
+        }
+    });
+
+    router.put('/character/:id/hp', (req, res) => {
+        const { newHP, newMaxHP } = req.body;
+        if (newHP === undefined) return res.status(400).json({ error: 'newHP required' });
+        try {
+            const char = updateHP(req.params.id, newHP, newMaxHP);
+            res.json({ id: char.id, hp_current: char.hp_current, hp_max: char.hp_max });
+        } catch (e) {
+            res.status(400).json({ error: e.message });
+        }
+    });
+
+    router.post('/character/:id/skills', (req, res) => {
+        const { skills } = req.body;
+        if (!skills || !Array.isArray(skills)) return res.status(400).json({ error: 'skills array required' });
+        try {
+            const char = setSkills(req.params.id, skills);
+            res.json({ id: char.id, skills: char.skills });
+        } catch (e) {
+            res.status(400).json({ error: e.message });
+        }
+    });
+
+    // TWO-PASS PROMPT GENERATION (for AI integration testing)
+    router.post('/generate/skill-check-prompt', (req, res) => {
+        const { skillName, skillValue, roll, level, success } = req.body;
+        if (!skillName || skillValue === undefined) {
+            return res.status(400).json({ error: 'skillName and skillValue required' });
+        }
+        const actualRoll = roll || Math.floor(Math.random() * 100) + 1;
+        const result = resolveSkillCheck(skillValue, actualRoll);
+        const pass1 = buildPass1Prompt({ skillName, skillValue, roll: actualRoll, ...result });
+        const pass2 = buildPass2Prompt(pass1, { currentScene: req.body.currentScene || '' });
+        res.json({ checkResult: { roll: actualRoll, ...result }, pass1, pass2 });
+    });
+
+    router.post('/generate/san-check-prompt', (req, res) => {
+        const { currentSAN, sanLoss, reason, currentScene } = req.body;
+        if (!currentSAN || !sanLoss) {
+            return res.status(400).json({ error: 'currentSAN and sanLoss required' });
+        }
+        const result = resolveSanCheck(currentSAN, sanLoss, reason || '');
+        const pass1 = buildSanPass1Prompt(result);
+        const pass2 = buildPass2Prompt(pass1, { currentScene: currentScene || '' });
+        res.json({ checkResult: result, pass1, pass2 });
+    });
+}
+
+module.exports = { info, init };
