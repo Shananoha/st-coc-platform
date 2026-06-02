@@ -207,6 +207,15 @@ async function init(router) {
         const prompt = buildSystemPrompt(scene, summary);
         res.json({ prompt, estimatedTokens: prompt.length });
     });
+
+    router.get('/occupations', (_req, res) => {
+        try {
+            const data = require('./occupations.json');
+            res.json(data);
+        } catch (e) {
+            res.status(500).json({ error: 'Occupations data not found' });
+        }
+    });
 }
 
 module.exports = { info, init };

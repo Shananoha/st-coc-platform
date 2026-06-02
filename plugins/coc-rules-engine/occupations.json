@@ -1,0 +1,124 @@
+{
+  "occupations": [
+    {
+      "code": "detective",
+      "name": "私家侦探",
+      "era": "1920s",
+      "credit_range": [9, 30],
+      "skill_formula": { "base": "EDU", "multiplier": 4 },
+      "occupational_skills": [
+        "侦查", "法律", "图书馆使用", "摄影", "心理学",
+        "潜行", "追踪", "格斗(斗殴)", "射击(手枪)", "话术"
+      ],
+      "suggested_skills": "任选一项作为个人专长：汽车驾驶、急救、开锁、乔装"
+    },
+    {
+      "code": "journalist",
+      "name": "记者",
+      "era": "1920s",
+      "credit_range": [9, 30],
+      "skill_formula": { "base": "EDU", "multiplier": 4 },
+      "occupational_skills": [
+        "技艺(写作)", "历史", "图书馆使用", "母语", "外语",
+        "心理学", "侦查", "话术", "潜行"
+      ],
+      "suggested_skills": "任选一项：摄影、驾驶、法律"
+    },
+    {
+      "code": "professor",
+      "name": "教授",
+      "era": "1920s",
+      "credit_range": [20, 70],
+      "skill_formula": { "base": "EDU", "multiplier": 4 },
+      "occupational_skills": [
+        "图书馆使用", "母语", "外语", "心理学",
+        "历史", "神秘学", "科学(任选)", "人类学"
+      ],
+      "suggested_skills": "任选一项：考古学、自然学、法律"
+    },
+    {
+      "code": "doctor",
+      "name": "医生",
+      "era": "1920s",
+      "credit_range": [30, 80],
+      "skill_formula": { "base": "EDU", "multiplier": 4 },
+      "occupational_skills": [
+        "急救", "医学", "外语(拉丁语)", "心理学",
+        "科学(生物学)", "科学(化学)", "图书馆使用", "药学"
+      ],
+      "suggested_skills": "任选一项：法律、精神分析"
+    },
+    {
+      "code": "antiquarian",
+      "name": "古董商",
+      "era": "1920s",
+      "credit_range": [30, 70],
+      "skill_formula": { "base": "EDU", "multiplier": 4 },
+      "occupational_skills": [
+        "估价", "技艺(修复)", "历史", "图书馆使用",
+        "外语", "侦查", "话术", "汽车驾驶"
+      ],
+      "suggested_skills": "任选一项：考古学、神秘学"
+    },
+    {
+      "code": "lawyer",
+      "name": "律师",
+      "era": "1920s",
+      "credit_range": [30, 80],
+      "skill_formula": { "base": "EDU", "multiplier": 4 },
+      "occupational_skills": [
+        "法律", "图书馆使用", "母语", "心理学",
+        "话术", "会计", "信用评级"
+      ],
+      "suggested_skills": "任选两项：外语、历史、恐吓"
+    },
+    {
+      "code": "police",
+      "name": "警察",
+      "era": "1920s",
+      "credit_range": [9, 30],
+      "skill_formula": { "base": "EDU", "multiplier": 2 },
+      "occupational_skills": [
+        "格斗(斗殴)", "射击(手枪)", "法律", "侦查",
+        "心理学", "汽车驾驶", "追踪", "急救"
+      ],
+      "suggested_skills": "任选一项：恐吓、潜行"
+    },
+    {
+      "code": "criminal",
+      "name": "罪犯",
+      "era": "1920s",
+      "credit_range": [5, 30],
+      "skill_formula": { "base": "EDU", "multiplier": 2 },
+      "occupational_skills": [
+        "潜行", "开锁", "格斗(斗殴)", "侦查",
+        "巧手", "乔装", "话术", "心理学"
+      ],
+      "suggested_skills": "任选一项：伪造、估价"
+    },
+    {
+      "code": "dilettante",
+      "name": "业余艺术爱好者",
+      "era": "1920s",
+      "credit_range": [50, 99],
+      "skill_formula": { "base": "EDU", "multiplier": 2 },
+      "occupational_skills": [
+        "信用评级", "外语", "汽车驾驶", "射击(手枪)",
+        "心理学", "话术"
+      ],
+      "suggested_skills": "任选三项：技艺(任选)、历史、图书馆使用、神秘学、骑术"
+    },
+    {
+      "code": "soldier",
+      "name": "士兵",
+      "era": "1920s",
+      "credit_range": [9, 30],
+      "skill_formula": { "base": "EDU", "multiplier": 2 },
+      "occupational_skills": [
+        "格斗(斗殴)", "射击(步枪)", "闪避", "急救",
+        "潜行", "生存", "攀爬", "投掷"
+      ],
+      "suggested_skills": "任选一项：汽车驾驶、重武器"
+    }
+  ]
+}
