@@ -8,6 +8,7 @@ const { resolveSanCheck } = require('./san-engine');
 const { createCharacter, getCharacter, updateSAN, updateHP, setSkills } = require('./database');
 const { buildPass1Prompt, buildPass2Prompt, buildSanPass1Prompt } = require('./two-pass-generator');
 const { getCurrentScene, getScene, transitionTo, discoverClue, getContextForAI, getDiscoveredClues, advanceTime, reset } = require('./scene-manager');
+const { buildSystemPrompt, buildCharacterSummary } = require('./kp-prompts');
 
 const info = {
     id: 'coc-rules-engine',
@@ -187,6 +188,13 @@ async function init(router) {
     router.post('/scene/reset', (_req, res) => {
         reset();
         res.json({ status: 'reset', scene: getCurrentScene().name });
+    });
+
+    router.post('/prompt/system', (req, res) => {
+        const scene = getCurrentScene();
+        const summary = req.body.characterSummary || '詹姆斯·卡特 - 私家侦探';
+        const prompt = buildSystemPrompt(scene, summary);
+        res.json({ prompt, estimatedTokens: prompt.length });
     });
 }
 
