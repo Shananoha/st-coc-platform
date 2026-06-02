@@ -7,6 +7,7 @@ const { resolveSkillCheck, rollDamage } = require('./dice-engine');
 const { resolveSanCheck } = require('./san-engine');
 const { createCharacter, getCharacter, updateSAN, updateHP, setSkills } = require('./database');
 const { buildPass1Prompt, buildPass2Prompt, buildSanPass1Prompt } = require('./two-pass-generator');
+const { getCurrentScene, getScene, transitionTo, discoverClue, getContextForAI, getDiscoveredClues, advanceTime, reset } = require('./scene-manager');
 
 const info = {
     id: 'coc-rules-engine',
@@ -139,6 +140,53 @@ async function init(router) {
         const pass1 = buildSanPass1Prompt(result);
         const pass2 = buildPass2Prompt(pass1, { currentScene: currentScene || '' });
         res.json({ checkResult: result, pass1, pass2 });
+    });
+
+    router.get('/scene/current', (_req, res) => {
+        const scene = getCurrentScene();
+        const context = getContextForAI();
+        res.json({ scene: { id: scene.id, name: scene.name, dread: scene.dread, description: scene.description, npcs: scene.npcs?.map(n => ({ name: n.name, role: n.role, speak: n.speak })), exits: scene.exits }, context });
+    });
+
+    router.post('/scene/transition', (req, res) => {
+        const { to } = req.body;
+        if (!to) return res.status(400).json({ error: 'target scene "to" required' });
+        const result = transitionTo(to);
+        if (result.error) return res.status(400).json(result);
+        res.json(result);
+    });
+
+    router.post('/scene/clue', (req, res) => {
+        const { clueId } = req.body;
+        if (!clueId) return res.status(400).json({ error: 'clueId required' });
+        const clue = discoverClue(clueId);
+        if (!clue) return res.status(404).json({ error: 'Clue not found' });
+        res.json(clue);
+    });
+
+    router.get('/scene/clues', (_req, res) => {
+        const ids = getDiscoveredClues();
+        const allClues = [];
+        const scenes = require('./scene-manager').SCENES;
+        ids.forEach(cid => {
+            for (const sid of Object.keys(scenes)) {
+                const c = scenes[sid].clues?.find(x => x.id === cid);
+                if (c) { allClues.push({ id: c.id, text: c.text }); break; }
+            }
+        });
+        res.json({ discovered: ids, clues: allClues });
+    });
+
+    router.post('/scene/time', (req, res) => {
+        const { minutes } = req.body;
+        if (!minutes) return res.status(400).json({ error: 'minutes required' });
+        const newTime = advanceTime(parseInt(minutes));
+        res.json({ time: newTime });
+    });
+
+    router.post('/scene/reset', (_req, res) => {
+        reset();
+        res.json({ status: 'reset', scene: getCurrentScene().name });
     });
 }
 
