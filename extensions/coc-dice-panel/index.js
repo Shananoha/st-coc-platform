@@ -70,6 +70,18 @@
     }
 
     loadCharacter();
+
+    async function pollScene() {
+        try {
+            var r = await fetch(API+'/scene/current');
+            var d = await r.json();
+            var sn = document.getElementById('coc-scene-name');
+            var sd = document.getElementById('coc-scene-dread');
+            if (sn) sn.textContent = d.scene.name;
+            if (sd) { var dread = d.scene.dread||1; sd.textContent = '◆'.repeat(dread)+'◇'.repeat(5-dread); sd.style.color = ['#8b949e','#c9d1d9','#d29922','#da3633','#f85149','#bc8cff'][dread]; }
+        } catch(e) {}
+    }
+    setInterval(pollScene, 3000);
     var kpPromptCache = null;
     var kpPromptEnabled = true;
 
@@ -117,6 +129,11 @@
         h += '<div id="coc-san" style="flex:1;background:#161b22;border:1px solid #30363d;border-radius:4px;padding:3px;text-align:center;cursor:pointer"><span style="font-size:8px;color:#8b949e;display:block">SAN</span><span style="font-weight:bold;font-size:14px;color:#3fb950">'+sanV+'</span><span style="font-size:9px;color:#8b949e">/'+sanM+'</span></div>';
         h += '<div id="coc-hp" style="flex:1;background:#161b22;border:1px solid #30363d;border-radius:4px;padding:3px;text-align:center;cursor:pointer"><span style="font-size:8px;color:#8b949e;display:block">HP</span><span style="font-weight:bold;font-size:14px;color:#f85149">'+hpV+'</span><span style="font-size:9px;color:#8b949e">/'+hpM+'</span></div>';
         h += '<div style="flex:1;background:#161b22;border:1px solid #30363d;border-radius:4px;padding:3px;text-align:center"><span style="font-size:8px;color:#8b949e;display:block">MP</span><span style="font-weight:bold;font-size:14px;color:#58a6ff">14</span><span style="font-size:9px;color:#8b949e">/14</span></div>';
+        h += '</div>';
+
+        h += '<div id="coc-scene-bar" style="background:#161b22;border:1px solid #21262d;border-radius:4px;padding:4px 6px;margin-bottom:6px;font-size:10px;display:flex;justify-content:space-between;align-items:center">';
+        h += '<span id="coc-scene-name" style="color:#c9d1d9">委托人到访</span>';
+        h += '<span id="coc-scene-dread" style="color:#8b949e">◆◇◇◇◇</span>';
         h += '</div>';
         h += '<div style="font-size:9px;color:#8b949e;margin:5px 0 3px;border-bottom:1px solid #21262d;padding-bottom:2px">技能检定</div>';
         h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px">';
