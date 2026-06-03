@@ -216,6 +216,64 @@ async function init(router) {
             res.status(500).json({ error: 'Occupations data not found' });
         }
     });
+
+    router.post('/generate/chat', async (req, res) => {
+        const { messages } = req.body;
+        if (!messages || !Array.isArray(messages)) {
+            return res.status(400).json({ error: 'messages array required' });
+        }
+        try {
+            const fs = require('fs'), path = require('path');
+            const userDir = path.join(__dirname, '..', '..', 'data', 'default-user');
+            const settings = JSON.parse(fs.readFileSync(path.join(userDir, 'settings.json'), 'utf8'));
+            const secrets = JSON.parse(fs.readFileSync(path.join(userDir, 'secrets.json'), 'utf8'));
+            const mainApi = settings.main_api || 'openai';
+
+            // Resolve API key
+            let apiKey = null;
+            const keyField = 'api_key_' + mainApi;
+            if (secrets[keyField] && Array.isArray(secrets[keyField]) && secrets[keyField].length > 0) {
+                apiKey = secrets[keyField].find(s => s.active)?.value || secrets[keyField][0].value;
+            }
+            if (!apiKey && secrets.api_key_custom && Array.isArray(secrets.api_key_custom)) {
+                apiKey = secrets.api_key_custom.find(s => s.active)?.value || secrets.api_key_custom[0].value;
+            }
+
+            // Resolve API URL
+            let apiUrl = '';
+            const base = settings.oai_settings?.custom_url || '';
+            if (base) apiUrl = base + (base.endsWith('/') ? 'chat/completions' : '/chat/completions');
+            else if (mainApi === 'openai') apiUrl = 'https://api.openai.com/v1/chat/completions';
+            else if (mainApi === 'deepseek') apiUrl = 'https://api.deepseek.com/v1/chat/completions';
+            else apiUrl = 'https://api.openai.com/v1/chat/completions';
+
+            // Check proxy
+            if (settings.selected_proxy?.url) apiUrl = settings.selected_proxy.url;
+
+            if (!apiUrl || !apiKey) {
+                return res.status(400).json({ error: 'AI backend not configured. Set up API key in ST first.' });
+            }
+
+            const resp = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+                body: JSON.stringify({
+                    model: req.body.model || 'deepseek-v4-pro',
+                    messages: messages,
+                    temperature: 0.85,
+                    max_tokens: 800,
+                    stream: false
+                })
+            });
+            const data = await resp.json();
+            if (data.error) return res.status(500).json({ error: data.error.message || JSON.stringify(data.error) });
+            const content = data.choices?.[0]?.message?.content || '';
+            if (!content) return res.status(500).json({ error: 'Empty response from AI' });
+            res.json({ content });
+        } catch (e) {
+            res.status(500).json({ error: e.message });
+        }
+    });
 }
 
 module.exports = { info, init };
