@@ -123,30 +123,30 @@
 
     function build() {
         var h = '';
-        h += '<div id="coc-panel" style="position:fixed;right:10px;top:120px;width:200px;z-index:9999;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px;color:#c9d1d9;font-family:system-ui,sans-serif;font-size:11px;box-shadow:0 4px 20px rgba(0,0,0,0.5)">';
-        h += '<div style="font-weight:bold;font-size:13px;color:#f85149;text-align:center;border-bottom:1px solid #21262d;padding-bottom:6px;margin-bottom:6px;cursor:move" id="coc-header">🎲 CoC 控制台</div>';
+        h += '<div id="coc-panel" style="position:fixed;right:10px;top:120px;width:200px;z-index:9999;background:var(--coc-bg-deep,#0a0e14);border:1px solid var(--coc-border-subtle,rgba(139,125,107,0.15));border-radius:8px;padding:10px;color:var(--coc-text-parchment,#d4c5a9);font-family:system-ui,sans-serif;font-size:11px;box-shadow:0 4px 20px rgba(0,0,0,0.5)">';
+        h += '<div style="font-weight:bold;font-size:13px;color:var(--coc-san-gold,#c4a35a);text-align:center;border-bottom:1px solid var(--coc-border-dark,rgba(139,125,107,0.08));padding-bottom:6px;margin-bottom:6px;cursor:move" id="coc-header">🎲 调查员面板</div>';
         h += '<div style="display:flex;gap:3px;margin-bottom:6px">';
-        h += '<div id="coc-san" style="flex:1;background:#161b22;border:1px solid #30363d;border-radius:4px;padding:3px;text-align:center;cursor:pointer"><span style="font-size:8px;color:#8b949e;display:block">SAN</span><span style="font-weight:bold;font-size:14px;color:#3fb950">'+sanV+'</span><span style="font-size:9px;color:#8b949e">/'+sanM+'</span></div>';
-        h += '<div id="coc-hp" style="flex:1;background:#161b22;border:1px solid #30363d;border-radius:4px;padding:3px;text-align:center;cursor:pointer"><span style="font-size:8px;color:#8b949e;display:block">HP</span><span style="font-weight:bold;font-size:14px;color:#f85149">'+hpV+'</span><span style="font-size:9px;color:#8b949e">/'+hpM+'</span></div>';
-        h += '<div style="flex:1;background:#161b22;border:1px solid #30363d;border-radius:4px;padding:3px;text-align:center"><span style="font-size:8px;color:#8b949e;display:block">MP</span><span style="font-weight:bold;font-size:14px;color:#58a6ff">14</span><span style="font-size:9px;color:#8b949e">/14</span></div>';
+        h += '<div id="coc-san" style="flex:1;background:var(--coc-bg-surface,#13181f);border:1px solid var(--coc-border-dark,rgba(139,125,107,0.08));border-radius:4px;padding:3px;text-align:center;cursor:pointer"><span style="font-size:8px;color:var(--coc-text-dim,#5a5245);display:block">SAN</span><span style="font-weight:bold;font-size:14px;color:var(--coc-san-gold,#c4a35a)">'+sanV+'</span><span style="font-size:9px;color:var(--coc-text-dim,#5a5245)">/'+sanM+'</span></div>';
+        h += '<div id="coc-hp" style="flex:1;background:var(--coc-bg-surface,#13181f);border:1px solid var(--coc-border-dark,rgba(139,125,107,0.08));border-radius:4px;padding:3px;text-align:center;cursor:pointer"><span style="font-size:8px;color:var(--coc-text-dim,#5a5245);display:block">HP</span><span style="font-weight:bold;font-size:14px;color:var(--coc-hp-crimson,#a83232)">'+hpV+'</span><span style="font-size:9px;color:var(--coc-text-dim,#5a5245)">/'+hpM+'</span></div>';
+        h += '<div style="flex:1;background:var(--coc-bg-surface,#13181f);border:1px solid var(--coc-border-dark,rgba(139,125,107,0.08));border-radius:4px;padding:3px;text-align:center"><span style="font-size:8px;color:var(--coc-text-dim,#5a5245);display:block">MP</span><span style="font-weight:bold;font-size:14px;color:var(--coc-mp-arcane,#7b5ea7)">14</span><span style="font-size:9px;color:var(--coc-text-dim,#5a5245)">/14</span></div>';
         h += '</div>';
 
-        h += '<div id="coc-scene-bar" style="background:#161b22;border:1px solid #21262d;border-radius:4px;padding:4px 6px;margin-bottom:6px;font-size:10px;display:flex;justify-content:space-between;align-items:center">';
-        h += '<span id="coc-scene-name" style="color:#c9d1d9">委托人到访</span>';
-        h += '<span id="coc-scene-dread" style="color:#8b949e">◆◇◇◇◇</span>';
+        h += '<div id="coc-scene-bar" style="background:var(--coc-bg-surface,#13181f);border:1px solid var(--coc-border-dark,rgba(139,125,107,0.08));border-radius:4px;padding:4px 6px;margin-bottom:6px;font-size:10px;display:flex;justify-content:space-between;align-items:center">';
+        h += '<span id="coc-scene-name" style="color:var(--coc-text-parchment,#d4c5a9)">委托人到访</span>';
+        h += '<span id="coc-scene-dread" style="color:var(--coc-text-dim,#5a5245)">◆◇◇◇◇</span>';
         h += '</div>';
-        h += '<div style="font-size:9px;color:#8b949e;margin:5px 0 3px;border-bottom:1px solid #21262d;padding-bottom:2px">技能检定</div>';
+        h += '<div style="font-size:9px;color:var(--coc-text-dim,#5a5245);margin:5px 0 3px;border-bottom:1px solid var(--coc-border-dark,rgba(139,125,107,0.08));padding-bottom:2px">快捷检定</div>';
         h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px">';
         SKILLS.forEach(function(s){
-            h += '<button class="csk-btn" data-s="'+s.n+'" style="display:flex;align-items:center;gap:3px;background:#161b22;border:1px solid #21262d;color:#c9d1d9;padding:3px 5px;border-radius:3px;cursor:pointer;font-size:10px;transition:all 0.15s">'+s.i+' '+s.n+'</button>';
+            h += '<button class="csk-btn" data-s="'+s.n+'" style="display:flex;align-items:center;justify-content:space-between;gap:3px;background:var(--coc-bg-surface,#13181f);border:1px solid var(--coc-border-dark,rgba(139,125,107,0.08));color:var(--coc-text-parchment,#d4c5a9);padding:3px 5px;border-radius:3px;cursor:pointer;font-size:10px;transition:all 0.15s"><span>'+s.i+' '+s.n+'</span><span style="font-family:monospace;font-size:9px;color:var(--coc-text-dim,#5a5245)">'+(charSkills[s.n]||50)+'%</span></button>';
         });
         h += '</div>';
         h += '<div style="display:flex;gap:3px;margin-top:5px">';
-        h += '<button class="cq-btn" data-a="d100" style="flex:1;padding:4px;background:#161b22;border:1px solid #1f6feb;color:#58a6ff;border-radius:3px;cursor:pointer;font-weight:bold;font-size:10px">🎯 D100</button>';
-        h += '<button class="cq-btn" data-a="san" style="flex:1;padding:4px;background:#161b22;border:1px solid #6e40c9;color:#bc8cff;border-radius:3px;cursor:pointer;font-weight:bold;font-size:10px">🧿 SAN</button>';
-        h += '<button class="cq-btn" data-a="dmg" style="flex:1;padding:4px;background:#161b22;border:1px solid #da3633;color:#f85149;border-radius:3px;cursor:pointer;font-weight:bold;font-size:10px">⚔️ 1d6</button>';
+        h += '<button class="cq-btn" data-a="d100" style="flex:1;padding:4px;background:var(--coc-bg-surface,#13181f);border:1px solid var(--coc-san-gold,#c4a35a);color:var(--coc-san-gold,#c4a35a);border-radius:3px;cursor:pointer;font-weight:bold;font-size:10px">🎯 D100</button>';
+        h += '<button class="cq-btn" data-a="san" style="flex:1;padding:4px;background:var(--coc-bg-surface,#13181f);border:1px solid var(--coc-mp-arcane,#7b5ea7);color:var(--coc-mp-arcane,#7b5ea7);border-radius:3px;cursor:pointer;font-weight:bold;font-size:10px">🧿 SAN</button>';
+        h += '<button class="cq-btn" data-a="dmg" style="flex:1;padding:4px;background:var(--coc-bg-surface,#13181f);border:1px solid var(--coc-hp-crimson,#a83232);color:var(--coc-hp-crimson,#a83232);border-radius:3px;cursor:pointer;font-weight:bold;font-size:10px">⚔️ 1d6</button>';
         h += '</div>';
-        h += '<div style="margin-top:5px;text-align:center"><button id="coc-toggle" style="background:none;border:none;color:#8b949e;cursor:pointer;font-size:10px">▲ 收起</button></div>';
+        h += '<div style="margin-top:5px;text-align:center"><button id="coc-toggle" style="background:none;border:none;color:var(--coc-text-dim,#5a5245);cursor:pointer;font-size:10px">▲ 收起</button></div>';
         h += '</div>';
         return h;
     }
@@ -193,8 +193,8 @@
     function bind() {
         // Skill buttons - hover highlight
         document.querySelectorAll('.csk-btn').forEach(function(b){
-            b.onmouseenter = function(){ this.style.background='#1f6feb'; this.style.borderColor='#58a6ff'; };
-            b.onmouseleave = function(){ this.style.background='#161b22'; this.style.borderColor='#21262d'; };
+            b.onmouseenter = function(){ this.style.background='var(--coc-bg-elevated,#1a1f28)'; this.style.borderColor='var(--coc-border-gold,rgba(196,163,90,0.3))'; };
+            b.onmouseleave = function(){ this.style.background='var(--coc-bg-surface,#13181f)'; this.style.borderColor='var(--coc-border-dark,rgba(139,125,107,0.08))'; };
             b.onclick = function(){
                 var skill = this.dataset.s;
                 var val = charSkills[skill] || 50;
