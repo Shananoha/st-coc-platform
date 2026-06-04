@@ -2,3 +2,8 @@ node_modules/
 *.log
 .env
 /tmp/
+*.db
+characters.db
+.DS_Store
+*.swp
+*.swo

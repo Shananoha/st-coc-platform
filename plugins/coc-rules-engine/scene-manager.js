@@ -133,7 +133,7 @@ function getContextForAI() {
         discoveredClues.forEach(cid => {
             for (const sid of Object.keys(SCENES)) {
                 const c = SCENES[sid].clues?.find(x => x.id === cid);
-                if (c) { context.push(`- ${c.text.substring(0, 80)}...`); break; }
+                if (c && c.success) { context.push(`- ${c.success.substring(0, 80)}...`); break; }
             }
         });
     }

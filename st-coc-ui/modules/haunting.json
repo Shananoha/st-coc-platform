@@ -1,0 +1,13 @@
+{
+  "id": "haunting",
+  "name": "鬼屋",
+  "difficulty": "中等",
+  "duration": "3-4小时",
+  "era": "1920s",
+  "author": "Sandy Petersen",
+  "desc": "一个看似普通的遗产继承委托，引向波士顿郊区一栋被诅咒的老宅。Mr. Knott 请求你调查 Corbitt 宅邸——几任租户都离奇死亡或发疯。随着调查深入，你将发现地下室里藏着一个不死的恐怖。",
+  "tags": ["经典", "调查", "恐怖"],
+  "scenes": 3,
+  "minPlayers": 1,
+  "maxPlayers": 4
+}

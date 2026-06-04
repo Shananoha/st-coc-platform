@@ -183,7 +183,7 @@ async function init(router) {
         ids.forEach(cid => {
             for (const sid of Object.keys(scenes)) {
                 const c = scenes[sid].clues?.find(x => x.id === cid);
-                if (c) { allClues.push({ id: c.id, text: c.text }); break; }
+                if (c && c.success) { allClues.push({ id: c.id, text: c.success }); break; }
             }
         });
         res.json({ discovered: ids, clues: allClues });
@@ -222,6 +222,26 @@ async function init(router) {
         if (!messages || !Array.isArray(messages)) {
             return res.status(400).json({ error: 'messages array required' });
         }
+        const scene = getCurrentScene();
+        const characterSummary = req.body.characterSummary || '一名调查员';
+        const systemPrompt = buildSystemPrompt(scene, characterSummary);
+        const chatMessages = [...messages];
+        chatMessages.unshift({ role: 'system', content: systemPrompt });
+        if (req.body.checkResult) {
+            const cr = req.body.checkResult;
+            const levelNames = {critical:'大成功',extreme:'极难成功',hard:'困难成功',regular:'成功'};
+            const resultLabel = cr.success ? (levelNames[cr.level]||'成功') : (cr.level==='fumble'?'大失败':'失败');
+            const lastMsg = chatMessages[chatMessages.length - 1];
+            lastMsg.content = '[检定结果锁定 - 不可修改]: '+cr.skillName+'检定 '+resultLabel+' (掷出'+cr.roll+'/'+cr.skillValue+'%)\n\n[调查员行动]: '+lastMsg.content+'\n\n请以守秘人身份，先陈述上述检定结果（一句话），然后展开沉浸式叙事。';
+        }
+        if (req.body.sanResult) {
+            const sr = req.body.sanResult;
+            const sanPass = sr.passed ? '通过' : '失败';
+            const sanInfo = sr.passed ? '成功维持理智 (掷出'+sr.roll+'，SAN保持'+sr.currentSAN+')' : '失败，失去'+sr.sanLost+'点SAN (掷出'+sr.roll+'/'+sr.currentSAN+'，剩余'+sr.newSAN+')';
+            const lastMsg = chatMessages[chatMessages.length - 1];
+            const reasonText = sr.reason ? ' 触发原因: '+sr.reason : '';
+            lastMsg.content = '[SAN检定结果锁定 - 不可修改]: '+sanPass+' - '+sanInfo+reasonText+'\n\n[调查员行动]: '+lastMsg.content+'\n\n请以守秘人身份，先陈述上述SAN检定结果（一句话），然后用感官细节描述'+lastMsg.content+'所带来的心理冲击和身体反应。3-5句。';
+        }
         try {
             const fs = require('fs'), path = require('path');
             const userDir = path.join(__dirname, '..', '..', 'data', 'default-user');
@@ -254,22 +274,75 @@ async function init(router) {
                 return res.status(400).json({ error: 'AI backend not configured. Set up API key in ST first.' });
             }
 
-            const resp = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-                body: JSON.stringify({
-                    model: req.body.model || 'deepseek-v4-pro',
-                    messages: messages,
-                    temperature: 0.85,
-                    max_tokens: 800,
-                    stream: false
-                })
-            });
-            const data = await resp.json();
-            if (data.error) return res.status(500).json({ error: data.error.message || JSON.stringify(data.error) });
-            const content = data.choices?.[0]?.message?.content || '';
-            if (!content) return res.status(500).json({ error: 'Empty response from AI' });
-            res.json({ content });
+            if (req.body.stream) {
+                res.setHeader('Content-Type', 'text/event-stream');
+                res.setHeader('Cache-Control', 'no-cache');
+                res.setHeader('Connection', 'keep-alive');
+                res.flushHeaders();
+
+                const llmResp = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+                    body: JSON.stringify({
+                        model: req.body.model || 'deepseek-v4-pro',
+                        messages: chatMessages,
+                        temperature: 0.85,
+                        max_tokens: 800,
+                        stream: true
+                    })
+                });
+
+                if (!llmResp.ok) {
+                    const errText = await llmResp.text();
+                    res.write('data: {"error":"LLM API error ' + llmResp.status + ': ' + errText.replace(/"/g, '\\"') + '"}\n\n');
+                    res.write('data: [DONE]\n\n');
+                    res.end();
+                    return;
+                }
+
+                const reader = llmResp.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || '';
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                res.write(line + '\n\n');
+                            }
+                        }
+                    }
+                    if (buffer.trim()) {
+                        res.write(buffer + '\n');
+                    }
+                } catch (streamErr) {
+                    res.write('data: {"error":"stream error"}\n\n');
+                }
+                res.write('data: [DONE]\n\n');
+                res.end();
+            } else {
+                const resp = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+                    body: JSON.stringify({
+                        model: req.body.model || 'deepseek-v4-pro',
+                        messages: chatMessages,
+                        temperature: 0.85,
+                        max_tokens: 800,
+                        stream: false
+                    })
+                });
+                const data = await resp.json();
+                if (data.error) return res.status(500).json({ error: data.error.message || JSON.stringify(data.error) });
+                const content = data.choices?.[0]?.message?.content || '';
+                if (!content) return res.status(500).json({ error: 'Empty response from AI' });
+                res.json({ content });
+            }
         } catch (e) {
             res.status(500).json({ error: e.message });
         }
