@@ -71,6 +71,7 @@ function initDB() {
             injuries_scars TEXT,
             phobias_manias TEXT,
             background_story TEXT,
+            key_connection TEXT,
             -- Timestamps
             created_at TEXT DEFAULT (datetime('now')),
             updated_at TEXT DEFAULT (datetime('now'))
@@ -109,18 +110,24 @@ function createCharacter(data) {
     const id = data.id || `char_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
     const stmt = d.prepare(`
-        INSERT INTO characters (id, name, era, occupation_code, occupation_name,
-            str, con, siz, dex, app, int_, pow, edu, luk,
+        INSERT INTO characters (id, name, occupation_name,
             hp_max, hp_current, mp_max, mp_current, san_max, san_current, san_start,
-            db, build, mov, credit_rating, cash, assets,
+            str, con, siz, dex, app, int_, pow, edu, luk,
+            db, build, mov, credit_rating,
+            age, sex, birthplace,
+            cash, assets,
             personal_description, ideology, significant_person, meaningful_location,
-            treasured_possession, traits, injuries_scars, phobias_manias, background_story)
-        VALUES (@id, @name, @era, @occupation_code, @occupation_name,
-            @str, @con, @siz, @dex, @app, @int_, @pow, @edu, @luk,
+            treasured_possession, traits, injuries_scars, phobias_manias,
+            background_story, key_connection)
+        VALUES (@id, @name, @occupation_name,
             @hp_max, @hp_current, @mp_max, @mp_current, @san_max, @san_current, @san_start,
-            @db, @build, @mov, @credit_rating, @cash, @assets,
+            @str, @con, @siz, @dex, @app, @int_, @pow, @edu, @luk,
+            @db, @build, @mov, @credit_rating,
+            @age, @sex, @birthplace,
+            @cash, @assets,
             @personal_description, @ideology, @significant_person, @meaningful_location,
-            @treasured_possession, @traits, @injuries_scars, @phobias_manias, @background_story)
+            @treasured_possession, @traits, @injuries_scars, @phobias_manias,
+            @background_story, @key_connection)
     `);
 
     const defaults = {
@@ -134,6 +141,7 @@ function createCharacter(data) {
         significant_person: null, meaningful_location: null,
         treasured_possession: null, traits: null,
         injuries_scars: null, phobias_manias: null, background_story: null,
+        key_connection: null,
         age: null, sex: null, residence: null, birthplace: null
     };
 
@@ -218,4 +226,19 @@ function setSkills(characterId, skills) {
     return getCharacter(characterId);
 }
 
-module.exports = { initDB, createCharacter, getCharacter, updateSAN, updateHP, markSkillGrowth, setSkills };
+function getSkills(characterId) {
+    const d = initDB();
+    return d.prepare('SELECT * FROM character_skills WHERE character_id = ?').all(characterId);
+}
+
+function addEquipment(id, items) {
+    const stmt = db.prepare('INSERT OR REPLACE INTO character_equipment (character_id, name, quantity) VALUES (?, ?, ?)');
+    const insertMany = db.transaction((equipItems) => {
+        for (const item of equipItems) {
+            stmt.run(id, item.name, item.quantity || 1);
+        }
+    });
+    insertMany(items);
+}
+
+module.exports = { createCharacter, getCharacter, updateSAN, updateHP, setSkills, addEquipment, getSkills };

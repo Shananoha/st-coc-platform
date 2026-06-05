@@ -46,7 +46,11 @@ const PACING_RULES = `## 节奏管理
 - 时间流逝带来了变化（天色渐暗、温度骤降）
 不要让玩家撞墙。`;
 
-// ==================== LAYER 3: ANTI-PATTERNS (always active) ====================
+// ==================== LAYER 3.5: DIALOGUE RULES (always active) ====================
+const DIALOGUE_RULES = `## 对话驱动规则
+- 玩家用自然语言描述调查员的行为。你判断是否需要技能检定，如果需要，在回复中明确说明检定要求和难度等级。
+- 不要向玩家提供行动选项列表。描述场景后，等待玩家自行决定行动。`;
+
 const ANTI_PATTERNS = `## 严格禁止的表述
 以下表述在任何情况下都不得出现：
 - "有趣的" "太棒了" "好主意" —— 你不是 cheerleader
@@ -90,11 +94,7 @@ ${characterSummary}
         prompt += '\n';
     }
 
-    if (scene.exits && scene.exits.length > 0) {
-        prompt += '## 可能的行动方向\n';
-        scene.exits.forEach(e => prompt += `- ${e.condition}\n`);
-        prompt += '\n';
-    }
+    // Exits removed — dialogue-driven KP, no action directions
 
     if (scene.san_triggers && scene.san_triggers.length > 0) {
         prompt += '## ⚠️ SAN 触发条件\n';
@@ -115,7 +115,7 @@ ${characterSummary}
 
 // ==================== FULL SYSTEM PROMPT BUILDER ====================
 function buildSystemPrompt(scene, characterSummary = '') {
-    return BASE_VOICE + '\n\n' + PACING_RULES + '\n\n' + ANTI_PATTERNS + buildScenePrompt(scene, characterSummary);
+    return BASE_VOICE + '\n\n' + PACING_RULES + '\n\n' + DIALOGUE_RULES + '\n\n' + ANTI_PATTERNS + buildScenePrompt(scene, characterSummary);
 }
 
 // ==================== CHARACTER SUMMARY BUILDER ====================

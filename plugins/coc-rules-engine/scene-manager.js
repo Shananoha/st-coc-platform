@@ -27,7 +27,6 @@ Mr. Knott 是一个消瘦的中年男人，穿着过时但整洁的西装。他�
             { id: 'c1', severity: 'core', success: 'Mr. Knott 委托你调查 Corbitt 宅邸。他提供了一份钥匙、房产文件和报纸剪报。报酬：$20/day + 费用报销。', fail_forward: 'Mr. Knott 犹豫了一下，但最终还是把钥匙和文件推过桌面。"请帮帮我，卡特先生。我不知道还能找谁。"', trigger: 'auto' },
             { id: 'c2', severity: 'core', success: '波士顿环球报剪报：标题"鬼屋之谜？Corbitt 宅邸的离奇死亡事件"。三任租户在一年内非正常死亡。', fail_forward: '你注意到 Knott 的文件袋里有一份泛黄的剪报。他不太情愿地递给你——标题让你心头一紧。', trigger: 'auto' }
         ],
-        exits: [{ to: 'house', condition: '玩家接受委托，前往 Corbitt 宅邸' }],
         san_triggers: []
     },
 
@@ -47,7 +46,6 @@ Mr. Knott 是一个消瘦的中年男人，穿着过时但整洁的西装。他�
             { id: 'c5', severity: 'auxiliary', success: '从客厅的窗户往外看，你注意到后院的泥土最近被翻动过。土里似乎埋着什么东西。也许是旧物，也许不是。', fail_forward: '你瞥了一眼窗外，但注意力被室内的阴森气氛分散了。也许等天再暗一些，你会注意到后院有什么不对劲。', trigger: '侦查或聆听' },
             { id: 'c6', severity: 'core', success: '通往地下室的楼梯很窄，木台阶在你脚下发出不祥的吱呀声。空气变得潮湿、寒冷，带着一股说不清的甜腻气味。地下室的角落里，有一个……棺材。', fail_forward: '你在房子后面找了很久才找到地下室入口——一扇藏在储物间后面的矮门。在你摸索的时间里，太阳已经完全落山了。楼梯很窄，木台阶在你脚下发出不祥的吱呀声。', trigger: '走向地下室' }
         ],
-        exits: [{ to: 'basement', condition: '玩家找到并进入地下室' }],
         san_triggers: []
     },
 
@@ -71,7 +69,6 @@ Walter Corbitt 从棺材里坐了起来。`,
             public_knowledge: []
         }],
         clues: [],
-        exits: [],
         san_triggers: [
             { reason: '第一次亲眼看到 Corbitt 的不死形态', loss: '0/1d6' }
         ]
@@ -82,8 +79,27 @@ Walter Corbitt 从棺材里坐了起来。`,
 let currentScene = 'intro';
 let discoveredClues = [];
 let gameTime = '第一天 14:00';
+let visitedScenes = [];
 
-function getCurrentScene() { return SCENES[currentScene]; }
+function initScene(sceneId) {
+    const scene = SCENES[sceneId];
+    if (!scene) return;
+    if (scene.clues) {
+        scene.clues.filter(c => c.trigger === 'auto').forEach(c => {
+            if (!discoveredClues.includes(c.id)) {
+                discoveredClues.push(c.id);
+            }
+        });
+    }
+}
+
+function getCurrentScene() {
+    if (!visitedScenes.includes(currentScene)) {
+        initScene(currentScene);
+        visitedScenes.push(currentScene);
+    }
+    return SCENES[currentScene];
+}
 function getScene(id) { return SCENES[id] || null; }
 
 function transitionTo(sceneId) {
@@ -91,17 +107,7 @@ function transitionTo(sceneId) {
     const old = currentScene;
     currentScene = sceneId;
     const scene = SCENES[sceneId];
-    // Auto-discover scene's auto-trigger clues
-    const newDiscoveries = [];
-    if (scene.clues) {
-        scene.clues.filter(c => c.trigger === 'auto').forEach(c => {
-            if (!discoveredClues.includes(c.id)) {
-                discoveredClues.push(c.id);
-                newDiscoveries.push(c);
-            }
-        });
-    }
-    return { from: old, to: sceneId, scene: { id: scene.id, name: scene.name, dread: scene.dread }, newDiscoveries, sanTriggers: scene.san_triggers || [] };
+    return { from: old, to: sceneId, scene: { id: scene.id, name: scene.name, dread: scene.dread }, newDiscoveries: [], sanTriggers: scene.san_triggers || [] };
 }
 
 function discoverClue(clueId) {
@@ -137,10 +143,6 @@ function getContextForAI() {
             }
         });
     }
-    if (scene.exits?.length > 0) {
-        context.push('[可能的去向]');
-        scene.exits.forEach(e => context.push(`- ${e.condition}`));
-    }
     return context.join('\n');
 }
 
@@ -157,6 +159,7 @@ function advanceTime(minutes) {
 function reset() {
     currentScene = 'intro';
     discoveredClues = [];
+    visitedScenes = [];
     gameTime = '第一天 14:00';
 }
 

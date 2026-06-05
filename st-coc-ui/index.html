@@ -5,55 +5,62 @@
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--font-ui);font-size:13px;line-height:1.5;color:var(--text-parchment);background:var(--bg-abyss);-webkit-font-smoothing:antialiased}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.035;background:repeating-conic-gradient(rgba(200,180,150,0.03) 0% 25%,transparent 0% 50%) 0 0/4px 4px}
-.game-container{display:grid;grid-template-columns:280px 1fr;grid-template-rows:1fr auto;height:100vh;width:100vw}
-.sidebar{grid-row:1/3;background:var(--bg-deep);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;overflow:hidden;position:relative}
-.sidebar::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(196,163,90,0.02) 0%,transparent 30%,transparent 70%,rgba(0,0,0,0.15) 100%);z-index:1}
-.sidebar>*{position:relative;z-index:2}
-.sidebar-header{padding:var(--sp-4) var(--sp-4) var(--sp-3);border-bottom:1px solid var(--border-dark);text-align:center}
-.game-title{font-family:var(--font-narrative);font-size:15px;letter-spacing:2px;text-transform:uppercase;color:var(--san-gold);text-shadow:0 0 20px rgba(196,163,90,0.2);animation:flicker 8s ease-in-out infinite}
-.game-subtitle{font-size:10px;color:var(--text-dim);letter-spacing:3px;text-transform:uppercase;margin-top:2px}
-.char-name-block{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-dark)}
-.char-name{font-family:var(--font-narrative);font-size:16px;color:var(--text-bright);font-style:italic}
-.char-archetype{font-size:11px;color:var(--text-dim);margin-top:1px}
-.vitals{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-dark);display:flex;flex-direction:column;gap:var(--sp-2)}
-.vital-row{display:grid;grid-template-columns:32px 1fr 48px;align-items:center;gap:var(--sp-2)}
-.vital-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
-.vital-label.san{color:var(--san-gold)}.vital-label.hp{color:var(--hp-crimson)}.vital-label.mp{color:var(--mp-arcane)}
-.vital-bar-track{height:16px;background:rgba(0,0,0,0.4);border-radius:2px;border:1px solid var(--border-dark);overflow:hidden}
-.vital-bar-fill{height:100%;border-radius:1px;transition:width 0.6s ease;position:relative}
-.vital-bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.06) 50%,transparent 100%);animation:bar-shimmer 3s ease-in-out infinite}
-.vital-bar-fill.san{background:linear-gradient(90deg,var(--san-gold-dim),var(--san-gold));box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 0 8px rgba(196,163,90,0.2)}
-.vital-bar-fill.hp{background:linear-gradient(90deg,var(--hp-crimson-dim),var(--hp-crimson));box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 0 8px rgba(168,50,50,0.2)}
-.vital-bar-fill.mp{background:linear-gradient(90deg,var(--mp-arcane-dim),var(--mp-arcane));box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 0 8px rgba(123,94,167,0.15)}
-@keyframes bar-shimmer{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
-.vital-value{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-align:right}
-.scene-info{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-dark)}
-.scene-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:var(--sp-1)}
-.scene-name{font-family:var(--font-narrative);font-size:14px;color:var(--text-bright);font-style:italic}
-.scene-time{font-size:11px;color:var(--text-dim);margin-top:2px}
-.dread-indicator{display:flex;align-items:center;gap:var(--sp-2);margin-top:var(--sp-2)}
-.dread-pips{display:flex;gap:3px}
-.dread-pip{width:8px;height:8px;border-radius:50%;border:1px solid var(--border-visible);transition:all 0.3s ease}
-.dread-pip.filled{background:var(--supernatural);border-color:var(--supernatural);box-shadow:0 0 6px rgba(107,74,138,0.4)}
-.dread-pip.empty{background:transparent}
-.dread-text{font-size:10px;color:var(--supernatural);letter-spacing:0.5px}
-.clue-tracker{display:flex;align-items:center;gap:var(--sp-2);margin-top:var(--sp-2)}
-.clue-icon{font-size:12px;color:var(--san-gold)}.clue-text{font-size:11px;color:var(--text-muted)}
-.clue-count{font-family:var(--font-mono);color:var(--san-gold)}
-.skills-section{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-dark);flex:1;overflow-y:auto}
-.skills-section-label{font-size:10px;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:var(--sp-2)}
+.game-container{display:none}
+.game-container.active{display:grid;grid-template-columns:250px 1fr 40px;grid-template-rows:36px 1fr;height:100vh;width:100vw;gap:0}
+.app-header{grid-column:1/-1;grid-row:1;background:var(--bg-deep);border-bottom:1px solid var(--border-dark);display:flex;align-items:center;justify-content:space-between;padding:0 var(--sp-4);min-height:36px;z-index:10}
+.app-header-title{font-family:var(--font-narrative);font-size:13px;color:var(--san-gold);letter-spacing:1px}
+.app-header-actions{display:flex;gap:var(--sp-2)}
+.header-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;padding:2px 8px;border-radius:var(--r-sm)}
+.header-btn:hover{color:var(--text-parchment)}
+.party-panel{grid-column:1;grid-row:2;background:var(--bg-deep);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;overflow:hidden;position:relative}
+.party-panel::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(196,163,90,0.02) 0%,transparent 30%,transparent 70%,rgba(0,0,0,0.15) 100%);z-index:1}
+.party-panel>*{position:relative;z-index:2}
+.party-scroll{flex:1;overflow-y:auto;padding:var(--sp-3);display:flex;flex-direction:column;gap:var(--sp-3)}
+.party-scroll::-webkit-scrollbar{width:4px}
+.party-scroll::-webkit-scrollbar-thumb{background:rgba(139,125,107,0.15);border-radius:2px}
+.char-card{background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-md);padding:var(--sp-3);cursor:pointer;transition:all 0.2s}
+.char-card:hover{border-color:var(--border-gold);background:var(--bg-elevated)}
+.char-card-name{font-family:var(--font-narrative);font-size:14px;color:var(--text-bright);font-style:italic}
+.char-card-occ{font-size:10px;color:var(--text-dim);margin-bottom:var(--sp-2)}
+.char-card-vitals{display:flex;flex-direction:column;gap:4px}
+.char-vital-row{display:flex;align-items:center;gap:6px}
+.char-vital-label{font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;width:22px;text-align:right}
+.char-vital-label.hp{color:var(--hp-crimson)}
+.char-vital-label.san{color:var(--san-gold)}
+.char-vital-bar-track{flex:1;height:8px;background:rgba(0,0,0,0.4);border-radius:2px;border:1px solid var(--border-dark);overflow:hidden}
+.char-vital-bar-fill{height:100%;border-radius:1px;transition:width 0.6s}
+.char-vital-bar-fill.hp{background:linear-gradient(90deg,rgba(168,50,50,0.6),var(--hp-crimson))}
+.char-vital-bar-fill.san{background:linear-gradient(90deg,rgba(196,163,90,0.4),var(--san-gold))}
+.char-vital-text{font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-left:6px}
+.chat-area{grid-column:2;grid-row:2;display:flex;flex-direction:column;background:var(--bg-abyss);overflow:hidden;position:relative}
+.scene-banner{padding:var(--sp-2) var(--sp-4);background:var(--bg-deep);border-bottom:1px solid var(--border-dark);display:flex;align-items:center;justify-content:space-between;min-height:30px}
+.scene-banner-name{font-family:var(--font-narrative);font-size:13px;color:var(--text-bright);font-style:italic}
+.scene-banner-right{display:flex;align-items:center;gap:var(--sp-2)}
+.scene-npcs{display:flex;flex-wrap:wrap;gap:var(--sp-1);margin-top:2px}
+.scene-npc-tag{font-size:10px;color:var(--text-dim);background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-sm);padding:1px 6px;cursor:pointer}
+.scene-npc-tag:hover{color:var(--san-gold);border-color:var(--border-gold)}
+.npc-msg-text{font-family:var(--font-narrative);font-size:14px;color:var(--text-parchment);line-height:1.7}
+.tools-panel{grid-column:3;grid-row:2;background:var(--bg-deep);border-left:1px solid var(--border-subtle);display:flex;flex-direction:column;overflow:hidden}
+.tools-icons{width:40px;display:flex;flex-direction:column;align-items:center;padding-top:var(--sp-2);gap:2px;flex-shrink:0}
+.tool-icon{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:15px;padding:6px;border-radius:var(--r-sm);width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.tool-icon:hover{color:var(--text-parchment)}
+.tool-icon.active{color:var(--san-gold);background:rgba(196,163,90,0.08)}
+.tools-content{display:none;flex:1;flex-direction:column;border-left:1px solid var(--border-dark);overflow:hidden}
+.tools-panel.expanded .tools-content{display:flex}
+.tool-header{padding:var(--sp-2) var(--sp-3);border-bottom:1px solid var(--border-dark);display:flex;justify-content:space-between;align-items:center}
+.tool-header span{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+.tool-close{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px}
+.tool-body{flex:1;overflow-y:auto;padding:var(--sp-3)}
 .skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .skill-btn{background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-sm);padding:var(--sp-1) var(--sp-2);color:var(--text-parchment);font-size:11px;cursor:pointer;transition:all 0.2s ease;display:flex;align-items:center;justify-content:space-between}
 .skill-btn:hover{border-color:var(--border-gold);background:var(--bg-elevated);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
 .skill-btn:active{transform:translateY(0);box-shadow:var(--shadow-inset)}
 .skill-btn-name{position:relative;z-index:1}.skill-btn-value{font-family:var(--font-mono);font-size:10px;color:var(--text-dim)}
-.sidebar-actions{padding:var(--sp-3) var(--sp-4) var(--sp-4);display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border-dark)}
 .action-btn{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--r-md);padding:var(--sp-2) var(--sp-3);color:var(--text-parchment);font-size:12px;cursor:pointer;transition:all 0.2s ease;text-align:center}
 .action-btn:hover{background:var(--bg-elevated);border-color:var(--border-visible)}
 .action-btn.primary{background:linear-gradient(180deg,rgba(196,163,90,0.12),rgba(196,163,90,0.05));border-color:var(--border-gold);color:var(--san-gold)}
 .action-btn.primary:hover{background:linear-gradient(180deg,rgba(196,163,90,0.18),rgba(196,163,90,0.08));box-shadow:0 0 12px rgba(196,163,90,0.1)}
-.main-area{display:flex;flex-direction:column;background:var(--bg-primary);overflow:hidden;position:relative}
-.main-area::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(180deg,rgba(10,14,20,0.6),transparent);pointer-events:none;z-index:2}
+
 .chat-header{padding:var(--sp-3) var(--sp-6);border-bottom:1px solid var(--border-dark);display:flex;align-items:center;justify-content:space-between;background:var(--bg-deep);z-index:3;min-height:44px}
 .chat-header-left{display:flex;align-items:center;gap:var(--sp-3)}
 .kp-badge{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 8px rgba(143,188,106,0.4);animation:pulse-glow 2s ease-in-out infinite}
@@ -97,11 +104,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 @keyframes flicker{0%,100%{opacity:1}5%{opacity:0.95}10%{opacity:1}15%{opacity:0.97}50%{opacity:1}55%{opacity:0.93}60%{opacity:1}}
 @keyframes fade-up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fade-in{from{opacity:0}to{opacity:1}}
-.sidebar{animation:fade-in 0.6s ease 0.1s both}.chat-header{animation:fade-in 0.4s ease 0.2s both}
+.chat-header{animation:fade-in 0.4s ease 0.2s both}
 .narrative-block,.dice-result,.player-action{animation:fade-up 0.5s ease both}
 .input-area{animation:fade-in 0.4s ease 0.4s both}
-@media(max-width:800px){.game-container{grid-template-columns:1fr}.sidebar{max-height:auto;overflow-x:visible;padding:var(--sp-2)}.sidebar .vitals{display:flex;flex-wrap:wrap;gap:8px}.sidebar .vitals>div{flex:1;min-width:80px}.sidebar .skills{display:flex;flex-wrap:wrap;gap:4px}.sidebar .skill-btn{flex:1;min-width:90px;font-size:10px}.main-area{min-width:0}.chat-area{height:60vh}.overlay-content{width:95%!important;max-width:95%!important}.sheet-tab{font-size:10px;padding:4px 0}.cc-skill-row input{width:50px}.combat-dlg .san-dialog-content{max-width:95%!important}.settings-row select,.settings-row input[type=range]{width:100%}.style-btns button{flex:1 1 auto;font-size:10px}}
-@media(max-width:800px){.sidebar{display:none;position:fixed;top:0;left:0;bottom:0;z-index:15000;width:280px;max-height:100vh;overflow-y:auto}.sidebar.show{display:block}.mobile-menu-btn{display:block!important}}
+@media(max-width:800px){.game-container.active{grid-template-columns:1fr;grid-template-rows:36px auto 1fr}.party-panel{max-height:160px;border-right:none;border-bottom:1px solid var(--border-subtle)}.tools-panel{display:none}.sidebar{display:none!important}.mobile-menu-btn{display:block!important}.overlay-content{width:95%!important;max-width:95%!important;font-size:11px}.sheet-tab{font-size:10px}.cc-skill-row input{width:50px}}
 .overlay-screen{position:fixed;inset:0;z-index:20000;background:var(--bg-abyss);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity 0.6s ease}
 .overlay-content{text-align:center;animation:fade-up 0.8s ease both}
 .title-brand{font-family:var(--font-narrative);font-size:32px;color:var(--san-gold);letter-spacing:4px;text-shadow:0 0 30px rgba(196,163,90,0.3);margin-bottom:8px}
@@ -133,7 +139,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .clue-card-text{font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .clue-card.expanded .clue-card-text{white-space:normal;overflow:visible;text-overflow:clip}
 .settings-row{margin-bottom:16px}.settings-label{display:block;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}.settings-select{width:100%;background:var(--bg-surface);border:1px solid var(--border-subtle);color:var(--text-parchment);padding:8px;border-radius:var(--r-sm);font-size:13px}.style-btns{display:flex;gap:6px;flex-wrap:wrap}.style-btn{background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-sm);padding:6px 10px;color:var(--text-muted);font-size:11px;cursor:pointer}.style-btn.active{border-color:var(--border-gold);color:var(--san-gold);background:rgba(196,163,90,0.08)}
-.game-container{display:none}
 .sheet-tabs{display:flex;gap:2px;padding:var(--sp-2) var(--sp-4) 0;border-bottom:1px solid var(--border-dark);background:var(--bg-deep)}
 .sheet-tab{flex:1;background:none;border:none;border-bottom:2px solid transparent;padding:var(--sp-2) 0;color:var(--text-dim);font-size:11px;cursor:pointer;transition:all 0.2s;text-align:center}
 .sheet-tab.active{color:var(--san-gold);border-bottom-color:var(--san-gold)}
@@ -154,6 +159,24 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .cc-skill-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-dark)}
 .cc-skill-row label{font-size:11px;color:var(--text-parchment)}
 .cc-skill-row input{width:60px;text-align:center;background:var(--bg-surface);border:1px solid var(--border-subtle);color:var(--text-parchment);padding:4px;border-radius:var(--r-sm);font-family:var(--font-mono)}
+.cc-era-btn{background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-md);padding:var(--sp-3) var(--sp-4);color:var(--text-parchment);font-size:13px;cursor:pointer;transition:all 0.2s;flex:1;text-align:center}.cc-era-btn:hover{border-color:var(--border-visible);background:var(--bg-elevated)}.cc-era-btn.active{border-color:var(--border-gold);color:var(--san-gold);background:rgba(196,163,90,0.08)}
+.cc-method-btn{background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-md);padding:var(--sp-3) var(--sp-4);color:var(--text-parchment);font-size:13px;cursor:pointer;transition:all 0.2s;flex:1;text-align:center}.cc-method-btn:hover{border-color:var(--border-visible);background:var(--bg-elevated)}.cc-method-btn.active{border-color:var(--border-gold);color:var(--san-gold);background:rgba(196,163,90,0.08)}
+.cc-attr-item{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border-bottom:1px solid var(--border-dark);font-size:12px;color:var(--text-parchment);gap:8px}.cc-attr-item label{font-family:var(--font-mono);font-size:11px;color:var(--san-gold);min-width:30px;font-weight:600}.cc-attr-item span{font-family:var(--font-mono);color:var(--text-bright);min-width:28px;text-align:center}
+.cc-attr-roll{background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-sm);color:var(--san-gold-dim);cursor:pointer;font-size:10px;padding:2px 8px;transition:all 0.2s}.cc-attr-roll:hover{color:var(--san-gold);border-color:var(--border-gold)}
+.cc-attr-input{width:60px;text-align:center;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--r-sm);color:var(--text-parchment);font-family:var(--font-mono);padding:4px;font-size:12px}
+.cc-attr-slider{width:100%;-webkit-appearance:none;appearance:none;height:4px;background:var(--border-subtle);border-radius:2px;outline:none;cursor:pointer}.cc-attr-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:var(--san-gold);cursor:pointer;border:none}
+.cc-derived{background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-md);padding:var(--sp-3);font-size:11px;color:var(--text-muted);margin-top:var(--sp-2);display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.cc-derived span{font-family:var(--font-mono);color:var(--text-bright);text-align:right}
+.cc-qb-val{background:var(--san-gold);color:var(--bg-abyss);cursor:pointer;padding:4px 8px;border-radius:var(--r-sm);font-family:var(--font-mono);font-size:12px;font-weight:700;border:none;transition:all 0.2s}.cc-qb-val:hover{background:var(--text-bright);transform:translateY(-1px)}.cc-qb-val.selected{background:var(--bg-surface);color:var(--text-parchment);border:1px solid var(--border-gold)}
+.cc-qb-slot{border:1px dashed var(--border-dark);border-radius:var(--r-sm);padding:4px 8px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);cursor:pointer;transition:all 0.2s;min-width:60px;text-align:center}.cc-qb-slot:hover{border-color:var(--border-gold)}.cc-qb-slot.filled{color:var(--text-bright);border-style:solid;border-color:var(--border-visible)}
+.cc-skill-cat-tab{background:none;border:none;border-bottom:2px solid transparent;padding:4px 10px;color:var(--text-dim);font-size:11px;cursor:pointer;transition:all 0.2s}.cc-skill-cat-tab:hover{color:var(--text-parchment)}.cc-skill-cat-tab.active{color:var(--san-gold);border-bottom-color:var(--san-gold)}
+.cc-skill-search{width:100%;padding:6px var(--sp-2);margin-bottom:var(--sp-2);background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--r-sm);color:var(--text-parchment);font-size:12px;outline:none}.cc-skill-search:focus{border-color:var(--border-gold)}
+.cc-equip-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px;color:var(--text-parchment);cursor:pointer}.cc-equip-item input[type=checkbox]{accent-color:var(--san-gold)}
+.cc-weapon-opt{background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-sm);padding:6px 10px;cursor:pointer;font-size:11px;color:var(--text-muted);transition:all 0.2s}.cc-weapon-opt:hover{border-color:var(--border-visible);color:var(--text-parchment)}.cc-weapon-opt.selected{border-color:var(--border-gold);color:var(--san-gold);background:rgba(196,163,90,0.08)}
+.cc-preview-card{background:var(--bg-surface);border:1px solid var(--border-gold);border-radius:var(--r-md);padding:var(--sp-4);margin-top:var(--sp-3)}.cc-preview-card h4{font-family:var(--font-narrative);font-size:16px;color:var(--san-gold);margin-bottom:4px}.cc-preview-card .meta{font-size:10px;color:var(--text-dim);margin-bottom:8px}.cc-preview-card .skills{font-size:11px;color:var(--text-muted)}
+.cc-pts-bar{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-sm);margin-bottom:8px;font-size:12px}.cc-pts-bar .label{color:var(--text-dim);font-size:10px}.cc-pts-bar .count{font-family:var(--font-mono);color:var(--san-gold);font-weight:600}
+.cc-age-slider{width:100%;margin:4px 0}.cc-age-row{display:flex;align-items:center;gap:8px;padding:4px 0}.cc-age-row label{font-size:11px;color:var(--text-dim);min-width:80px}.cc-age-row span{font-family:var(--font-mono);color:var(--text-bright);font-size:12px}
+.cc-section-title{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border-dark);padding-bottom:4px;margin-bottom:8px}
 .npc-panel{margin-top:8px;border-top:1px solid var(--border-dark);padding-top:8px}
 .npc-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:11px}
 .npc-name{color:var(--text-parchment)}
@@ -161,6 +184,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 .cbt-player{background:rgba(196,163,90,0.08);border:1px solid var(--border-gold);border-radius:var(--r-sm);padding:6px 8px;margin-bottom:6px}
 .save-btn{font-size:10px;padding:2px 6px;background:none;border:1px solid var(--border-dark);border-radius:var(--r-sm);color:var(--text-dim);cursor:pointer}
 .save-btn:hover{border-color:var(--border-gold);color:var(--san-gold)}
+.save-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-md);margin-bottom:8px;transition:all 0.2s}.save-item:hover{border-color:var(--border-gold)}.save-info{flex:1}.save-name{font-size:13px;color:var(--text-bright)}.save-meta{font-size:10px;color:var(--text-dim);margin-top:2px}.save-actions{display:flex;gap:4px}.save-btn-sm{background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-sm);padding:4px 10px;color:var(--text-dim);cursor:pointer;font-size:11px}.save-btn-sm:hover{border-color:var(--border-gold);color:var(--san-gold)}.save-btn-sm.danger:hover{color:var(--hp-crimson);border-color:var(--hp-crimson)}
 </style></head><body>
 <div id="title-screen" class="overlay-screen">
 <div class="overlay-content">
@@ -168,7 +192,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 <div class="title-sub">ST-CoC · 克苏鲁的呼唤 7e 单人跑团</div>
 <div class="title-actions">
 <button class="title-btn primary" onclick="startNewGame()">新游戏</button>
-<button class="title-btn" onclick="continueGame()">继续冒险</button>
+<button class="title-btn" onclick="openSaveManager('load')">继续冒险</button>
 </div>
 <div id="continue-hint" class="title-hint" style="display:none">暂无存档</div>
 </div>
@@ -198,41 +222,42 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;o
 </div>
     </div>
   </div>
-  <div id="char-creator" class="overlay-screen" style="display:none"><div class="overlay-content" style="max-width:560px;width:90%;text-align:left"><div class="overlay-title" id="cc-title">创建调查员 — 步骤 1/5</div><div id="cc-step-1" class="cc-step"><p style="font-size:12px;color:var(--text-dim);margin-bottom:8px">掷骰决定你的属性。可重新掷骰。</p><div id="cc-attrs"></div><button class="action-btn primary" onclick="rollAttributes()" style="width:100%;margin-top:8px">🎲 掷骰</button></div><div id="cc-step-2" class="cc-step" style="display:none"><p style="font-size:12px;color:var(--text-dim);margin-bottom:8px">选择你的职业。</p><div id="cc-occupations" style="max-height:300px;overflow-y:auto"></div></div><div id="cc-step-3" class="cc-step" style="display:none"><p style="font-size:12px;color:var(--text-dim);margin-bottom:8px">分配职业技能点与兴趣技能点。</p><div id="cc-skill-alloc"></div></div><div id="cc-step-4" class="cc-step" style="display:none"><p style="font-size:12px;color:var(--text-dim);margin-bottom:8px">填写背景信息。</p><div id="cc-background"></div></div><div id="cc-step-5" class="cc-step" style="display:none"><p style="font-size:12px;color:var(--text-dim);margin-bottom:8px">确认你的调查员。</p><div id="cc-confirm"></div></div><div style="display:flex;gap:8px;margin-top:12px"><button class="action-btn" id="cc-prev" onclick="ccPrev()" style="flex:1" disabled>← 上一步</button><button class="action-btn primary" id="cc-next" onclick="ccNext()" style="flex:1">下一步 →</button></div><button class="action-btn" onclick="closeCharCreator()" style="width:100%;margin-top:6px">取消</button></div></div>
+  <div id="char-creator" class="overlay-screen" style="display:none"><div class="overlay-content" style="max-width:640px;width:92%;text-align:left;max-height:90vh;overflow-y:auto"><div class="overlay-title" id="cc-title">创建调查员 — 步骤 1/7</div><div id="cc-step-1" class="cc-step"><div class="cc-section-title">时代选择</div><div style="display:flex;gap:8px;margin-bottom:16px" id="cc-era-btns"></div><div class="cc-section-title">创建方式</div><div style="display:flex;gap:8px" id="cc-method-btns"></div></div><div id="cc-step-2" class="cc-step" style="display:none"><div style="display:flex;gap:16px"><div style="flex:1"><div id="cc-attrs"></div><div id="cc-luk-area" style="margin-top:8px"></div></div><div class="cc-derived" id="cc-derived-sidebar"><div style="grid-column:1/-1;text-align:center;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">衍生属性</div></div></div><div id="cc-method-area" style="margin-top:8px"></div></div><div id="cc-step-3" class="cc-step" style="display:none"><div class="cc-section-title">衍生属性</div><div class="cc-derived" id="cc-derived-full"></div><div class="cc-section-title" style="margin-top:12px">年龄与信用评级</div><div id="cc-age-area"></div><div id="cc-cr-area" style="margin-top:8px;display:none"></div></div><div id="cc-step-4" class="cc-step" style="display:none"><div id="cc-occ-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:200px;overflow-y:auto;margin-bottom:12px"></div><div class="cc-pts-bar"><span class="label">职业技能点 (EDU×4)</span><span class="count" id="cc-occ-pts"></span></div><div id="cc-occ-skill-area"></div></div><div id="cc-step-5" class="cc-step" style="display:none"><input class="cc-skill-search" id="cc-skill-filter" placeholder="搜索技能..." oninput="applyCcSkillFilter()"><div style="display:flex;gap:2px;flex-wrap:wrap;margin-bottom:8px;border-bottom:1px solid var(--border-dark);padding-bottom:4px" id="cc-skill-cat-tabs"></div><div class="cc-pts-bar"><span class="label">兴趣技能点 (INT×2)</span><span class="count" id="cc-int-pts"></span></div><div id="cc-int-skill-area" style="max-height:300px;overflow-y:auto"></div></div><div id="cc-step-6" class="cc-step" style="display:none"><div id="cc-bg-area"></div></div><div id="cc-step-7" class="cc-step" style="display:none"><div class="cc-section-title">资金</div><div id="cc-cash-area"></div><div class="cc-section-title" style="margin-top:12px">装备</div><div id="cc-equip-area"></div><div class="cc-section-title" style="margin-top:12px">武器</div><div id="cc-weapon-area"></div><div class="cc-section-title" style="margin-top:12px">角色预览</div><div class="cc-preview-card" id="cc-preview"></div></div><div style="display:flex;gap:8px;margin-top:12px"><button class="action-btn" id="cc-prev" onclick="ccPrev()" style="flex:1" disabled>← 上一步</button><button class="action-btn primary" id="cc-next" onclick="ccNext()" style="flex:1">下一步 →</button></div><button class="action-btn" onclick="closeCharCreator()" style="width:100%;margin-top:6px">取消</button></div></div>
   <div class="game-container">
-<aside class="sidebar">
-<div class="sidebar-header"><div class="game-title">克苏鲁的呼唤</div><div class="game-subtitle">Seventh Edition</div></div>
-<div class="char-name-block"><div class="char-name" id="coc-char-name">詹姆斯·卡特</div><div class="char-archetype" id="coc-char-info">私家侦探 · 波士顿</div><select id="party-select" onchange="setActiveChar(this.value)" style="display:none;width:100%;background:var(--bg-surface);border:1px solid var(--border-subtle);color:var(--text-parchment);padding:4px;border-radius:var(--r-sm);font-size:11px;margin-top:4px"></select></div>
-<div class="vitals"><div class="vital-row"><span class="vital-label san">SAN</span><div class="vital-bar-track"><div class="vital-bar-fill san" id="san-bar" style="width:93%"></div></div><span class="vital-value" id="san-val">65/70</span></div><div class="vital-row"><span class="vital-label hp">HP</span><div class="vital-bar-track"><div class="vital-bar-fill hp" id="hp-bar" style="width:100%"></div></div><span class="vital-value" id="hp-val">11/11</span></div><div class="vital-row"><span class="vital-label mp">MP</span><div class="vital-bar-track"><div class="vital-bar-fill mp" id="mp-bar" style="width:100%"></div></div><span class="vital-value" id="mp-val">14/14</span></div></div>
-<div class="scene-info"><div class="scene-label">当前场景</div><div class="scene-name" id="scene-name">委托人到访</div><div class="dread-indicator"><span class="scene-label" style="margin:0">恐惧等级</span><div class="dread-pips" id="dread-pips"><div class="dread-pip filled"></div><div class="dread-pip empty"></div><div class="dread-pip empty"></div><div class="dread-pip empty"></div><div class="dread-pip empty"></div><div class="dread-pip empty"></div></div><span class="dread-text" id="dread-text"></span></div><div class="clue-tracker"><span class="clue-icon">♦</span><span class="clue-text">线索 <span class="clue-count" id="clue-count">已发现 0 条线索</span></span></div>
-<div id="clue-list" class="clue-list"></div></div>
-<div class="skills-section"><div class="skills-section-label">快捷检定</div><div class="skill-grid" id="skill-grid"></div></div>
-<div class="sidebar-actions"><button class="action-btn primary" onclick="showSanDialog()">🧿 SAN 检定</button><button class="action-btn" onclick="rollD100()">🎯 掷 D100</button><button class="action-btn" onclick="toggleCombat()">⚔️ 战斗模式</button><button class="action-btn" onclick="showCharSheet()">📋 角色档案</button><button class="save-btn" onclick="saveGame()" style="margin-top:4px;width:100%">💾 保存进度</button></div></aside>
-<main class="main-area"><div class="chat-header"><div class="chat-header-left"><div class="kp-badge"></div><span class="chat-header-title">守秘人正在叙述...</span></div><div class="chat-header-right"><button class="header-icon-btn mobile-menu-btn" onclick="toggleSidebar()" style="display:none;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:2px 6px">☰</button><span style="color:var(--text-dim);font-size:10px" id="api-status">● 已连接</span><button class="header-icon-btn" onclick="showSettings()" title="设置" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 6px">⚙️</button></div></div><div class="messages" id="messages"><div class="system-msg">调查开始 — 第一幕</div></div></main>
-<div class="input-area"><div class="input-wrapper"><textarea class="input-field" id="input-field" rows="1" placeholder="描述你的行动..."></textarea><button class="send-btn" id="send-btn" onclick="sendMessage()">发送</button></div><div class="input-hints"><span class="hint-item"><span class="hint-key">Enter</span> 发送</span><span class="hint-item"><span class="hint-key">Shift+Enter</span> 换行</span></div></div></div>
+<header class="app-header"><span class="app-header-title">ST-CoC</span><div class="app-header-actions"><button class="header-btn" onclick="openModuleManager()">模组</button><button class="header-btn" onclick="openStImport()">导入角色</button><button class="header-btn" onclick="openSaveManager('save')">💾 保存</button><button class="header-btn" onclick="showSettings()">⚙️</button></div></header>
+<aside class="party-panel"><div class="party-scroll" id="party-list"></div><div class="party-actions" style="padding:var(--sp-3)"><button class="action-btn" onclick="addPartyChar()" style="width:100%">+ 添加角色</button></div></aside>
+<main class="chat-area"><div class="chat-header" style="padding:var(--sp-2) var(--sp-4);border-bottom:1px solid var(--border-dark);display:flex;align-items:center;justify-content:space-between;background:var(--bg-deep);z-index:3;min-height:32px"><div class="chat-header-left"><span style="font-size:13px;color:var(--text-bright)">守秘人</span><span style="font-size:10px;color:var(--text-dim);margin-left:var(--sp-2)">● 已连接</span></div><div class="chat-header-right"><button class="header-icon-btn" onclick="showSettings()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 6px">⚙️</button></div></div><div class="scene-banner"><span class="scene-banner-name" id="scene-name">委托人到访</span><div class="scene-banner-right"><div id="dread-pips" class="dread-pips" style="display:flex;gap:4px"></div><span id="dread-text" style="font-size:10px;color:var(--text-dim)"></span><div id="scene-npcs" class="scene-npcs"></div></div></div><div class="messages" id="messages" style="flex:1;overflow-y:auto;padding:var(--sp-4) var(--sp-6);display:flex;flex-direction:column;gap:var(--sp-1)"></div><div class="input-area" style="padding:var(--sp-3) var(--sp-4);border-top:1px solid var(--border-dark);background:var(--bg-deep);display:flex;gap:var(--sp-2)"><textarea id="input-field" style="flex:1;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--r-md);color:var(--text-parchment);padding:var(--sp-2) var(--sp-3);font-family:var(--font-ui);font-size:13px;resize:none;min-height:36px;max-height:120px;outline:none" placeholder="描述你的行动..." rows="1"></textarea><button id="send-btn" class="action-btn primary" onclick="sendMessage()" style="padding:var(--sp-1) var(--sp-4);font-size:13px">发送</button></div></main>
+<aside class="tools-panel" id="tools-panel"><div class="tools-icons"><button class="tool-icon" onclick="toggleTool('dice')" title="骰子">🎲</button><button class="tool-icon" onclick="toggleTool('items')" title="道具">📋</button><button class="tool-icon" onclick="toggleTool('notes')" title="笔记">📝</button><button class="tool-icon" onclick="toggleTool('combat')" title="战斗">⚔️</button><button class="tool-icon" onclick="toggleTool('ref')" title="参考">📊</button></div><div class="tools-content"><div class="tool-header"><span id="tool-title">工具</span><button class="tool-close" onclick="closeTools()">✕</button></div><div class="tool-body" id="tool-body"></div></div></aside>
+<div class="clue-tracker" style="display:none"><span class="clue-icon">♦</span><span class="clue-text">线索 <span id="clue-count">已发现 0 条线索</span></span><div id="clue-list"></div></div>
+</div>
 <div class="san-dialog" id="san-dialog"><div class="san-dialog-content"><h3 style="color:var(--mp-arcane);margin-bottom:12px">🧿 SAN 检定</h3><input id="san-reason" placeholder="触发原因 (如: 看到Corbitt)"><input id="san-loss" placeholder="损失公式 (如: 0/1d6)" value="0/1d6"><button class="action-btn primary" onclick="doSanCheck()" style="width:100%;margin-top:8px">掷 SAN 检定</button><button class="action-btn" onclick="document.getElementById('san-dialog').classList.remove('show')" style="width:100%;margin-top:4px">取消</button></div></div>
 <div class="san-dialog" id="char-sheet-dlg"><div class="san-dialog-content" style="max-width:560px;text-align:left;max-height:85vh;overflow-y:auto;padding:0"><div style="padding:var(--sp-5) var(--sp-5) var(--sp-3);border-bottom:1px solid var(--border-dark);text-align:center"><h3 style="color:var(--san-gold);margin-bottom:4px">📋 角色档案</h3><div id="char-sheet-title" style="font-size:12px;color:var(--text-dim)"></div></div><div class="sheet-tabs"><button class="sheet-tab active" data-tab="attrs" onclick="switchSheetTab('attrs')">属性</button><button class="sheet-tab" data-tab="skills" onclick="switchSheetTab('skills')">技能</button><button class="sheet-tab" data-tab="combat" onclick="switchSheetTab('combat')">战斗</button><button class="sheet-tab" data-tab="gear" onclick="switchSheetTab('gear')">装备</button><button class="sheet-tab" data-tab="bg" onclick="switchSheetTab('bg')">背景</button></div><div id="char-sheet-content" style="padding:var(--sp-4) var(--sp-5)"></div><button class="action-btn" onclick="document.getElementById('char-sheet-dlg').classList.remove('show')" style="width:calc(100% - 48px);margin:0 24px 20px">关闭</button></div></div>
 <div class="san-dialog" id="combat-dlg"><div class="san-dialog-content" style="max-width:450px;text-align:left;max-height:80vh;overflow-y:auto"><h3 style="color:var(--hp-crimson);margin-bottom:12px;text-align:center">⚔️ 战斗面板</h3><div style="display:flex;gap:4px;margin-bottom:8px"><input id="cbt-name" placeholder="NPC名称" style="flex:1"><input id="cbt-hp" placeholder="HP" value="10" style="width:50px"><input id="cbt-dex" placeholder="DEX" value="50" style="width:50px"><button class="action-btn primary" onclick="addCombatant()" style="white-space:nowrap">+ 添加</button></div><div id="combatant-list"></div><div style="display:flex;gap:4px;margin-top:8px"><button class="action-btn primary" onclick="startCombat()" style="flex:1">▶ 开始战斗</button><button class="action-btn" onclick="nextTurn()" style="flex:1" id="next-turn-btn" disabled>→ 下一轮</button><button class="action-btn" onclick="endCombat()" style="flex:1">■ 结束</button></div><button class="action-btn" onclick="document.getElementById(\'combat-dlg\').classList.remove(\'show\')" style="width:100%;margin-top:4px">关闭</button></div></div>
 <div class="san-dialog" id="settings-dlg"><div class="san-dialog-content" style="max-width:400px;text-align:left"><h3 style="color:var(--san-gold);margin-bottom:16px;text-align:center">⚙️ 设置</h3><div class="settings-row"><label class="settings-label">AI 模型</label><select id="setting-model" class="settings-select"><option value="deepseek-v4-pro">deepseek-v4-pro</option><option value="deepseek-v4-flash">deepseek-v4-flash</option><option value="qwen3.7-max">qwen3.7-max</option><option value="kimi-k2.6">kimi-k2.6</option></select></div><div class="settings-row"><label class="settings-label">Temperature</label><input type="range" id="setting-temp" min="0.1" max="2.0" step="0.1" value="0.8" style="width:100%"><span id="setting-temp-val" style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);float:right">0.8</span></div><div class="settings-row"><label class="settings-label">KP 风格</label><div class="style-btns"><button class="style-btn active" data-style="classic" onclick="setKpStyle(this)">经典恐怖</button><button class="style-btn" data-style="mystery" onclick="setKpStyle(this)">悬疑推理</button><button class="style-btn" data-style="fast" onclick="setKpStyle(this)">快节奏</button><button class="style-btn" data-style="verbose" onclick="setKpStyle(this)">详细描述</button></div></div><div class="settings-row"><button class="action-btn" onclick="saveSettings()" style="width:100%">保存设置</button><button class="action-btn" onclick="resetGame()" style="width:100%;margin-top:6px;background:var(--hp-crimson);border-color:var(--hp-crimson);color:#fff">🔄 重置游戏</button><button class="action-btn" onclick="document.getElementById(\'settings-dlg\').classList.remove(\'show\')" style="width:100%;margin-top:6px">关闭</button></div></div></div>
+<div class="san-dialog" id="save-dlg"><div class="san-dialog-content" style="max-width:480px;text-align:left"><h3 style="color:var(--san-gold);margin-bottom:12px;text-align:center">💾 存档管理</h3><div id="save-list" style="max-height:350px;overflow-y:auto;margin-bottom:12px"></div><div style="display:flex;gap:8px"><input id="save-name-input" style="flex:1;background:var(--bg-surface);border:1px solid var(--border-subtle);color:var(--text-parchment);padding:8px;border-radius:var(--r-sm);font-size:12px" placeholder="新存档名称"><button class="action-btn primary" onclick="createSave()" style="flex:0 0 auto">新建存档</button></div><button class="action-btn" onclick="document.getElementById(\'save-dlg\').classList.remove(\'show\')" style="width:100%;margin-top:8px">关闭</button></div></div>
+<div id="auto-save-status" style="display:none"></div>
+<div class="san-dialog" id="st-import-dlg"><div class="san-dialog-content" style="max-width:480px;text-align:left"><h3 style="color:var(--san-gold);margin-bottom:12px;text-align:center">导入 ST 角色卡</h3><div id="st-import-area" style="border:2px dashed var(--border-dark);border-radius:var(--r-md);padding:24px;text-align:center;cursor:pointer;transition:all 0.2s" ondrop="handleStDrop(event)" ondragover="event.preventDefault();this.style.borderColor='var(--border-gold)'" ondragleave="this.style.borderColor='var(--border-dark)'">拖拽 ST 角色卡到这里<br><span style="font-size:10px;color:var(--text-dim);margin-top:4px;display:inline-block">支持 PNG / JSON 格式</span></div><input type="file" id="st-file-input" accept=".png,.json" style="display:none" onchange="handleStFile(event)"><button class="action-btn" onclick="document.getElementById('st-file-input').click()" style="width:100%;margin-top:8px">选择文件</button><div id="st-preview" style="margin-top:8px"></div><div id="st-import-actions" style="display:none;margin-top:8px"><select id="st-import-type" style="width:100%;background:var(--bg-surface);border:1px solid var(--border-subtle);color:var(--text-parchment);padding:6px;border-radius:var(--r-sm);font-size:12px"><option value="pc">导入为玩家角色 (PC)</option><option value="ai-pc">导入为 AI 托管角色</option><option value="npc">导入为 NPC</option></select><button class="action-btn primary" onclick="confirmStImport()" style="width:100%;margin-top:6px">确认导入</button></div><button class="action-btn" onclick="document.getElementById('st-import-dlg').classList.remove('show')" style="width:100%;margin-top:8px">关闭</button></div></div>
+<div class="san-dialog" id="module-dlg"><div class="san-dialog-content" style="max-width:560px;text-align:left"><h3 style="color:var(--san-gold);margin-bottom:12px;text-align:center">模组管理</h3><div id="module-list" style="max-height:300px;overflow-y:auto;margin-bottom:12px"></div><div style="display:flex;gap:8px"><button class="action-btn primary" onclick="openModuleImport()" style="flex:1">导入模组</button></div><button class="action-btn" onclick="document.getElementById('module-dlg').classList.remove('show')" style="width:100%;margin-top:8px">关闭</button></div></div>
 <script>
-var API='http://localhost:8000/api/plugins/coc-rules-engine', ST_API='http://localhost:8000/api';
+var API='http://localhost:8000/api/plugins/coc-rules-engine';
 var char={name:'詹姆斯·卡特',occupation:'私家侦探',san:70,sanMax:99,hp:11,hpMax:11,mp:14,mpMax:14,skills:{'侦查':70,'聆听':40,'图书馆使用':60,'心理学':60,'潜行':30,'话术':40,'闪避':27,'格斗(斗殴)':50,'射击(手枪)':40,'急救':30,'驾驶(汽车)':30,'信用评级':30}};
 var charId='pregen-001';
 var useStream=true;
-var partyChars={};
+var party=[];
 var activeCharId='pregen-001';
 function getActiveChar(){return char}
-function setActiveChar(id){if(partyChars[id]){charId=id;activeCharId=id;char=partyChars[id];updateVitals();buildSkillGrid();addSystemMsg('切换到: '+char.name)}};
+function findPartyMember(id){for(var i=0;i<party.length;i++){if(party[i].id===id)return party[i]}return null}
+function setActiveChar(id){var member=findPartyMember(id);if(member){charId=id;activeCharId=id;char=member.charData;updateVitals();buildSkillGrid();addSystemMsg('切换到: '+char.name);renderParty()}};
 function buildCharSummary(){var topSkills=[];var skills=char.skills||{};for(var sk in skills)topSkills.push([sk,skills[sk]]);topSkills.sort(function(a,b){return b[1]-a[1]});topSkills=topSkills.slice(0,8);return char.name+' - '+(char.occupation||'调查员')+'\nSAN: '+char.san+'/'+char.sanMax+' | HP: '+char.hp+'/'+char.hpMax+' | MP: '+char.mp+'/'+char.mpMax+'\n核心技能: '+topSkills.map(function(s){return s[0]+' '+s[1]+'%'}).join(', ');}
 var combatants=[],combatRound=0,combatTurn=0,combatActive=false;
 
 function showSanDialog(){document.getElementById('san-dialog').classList.add('show')}
 function showCharSheet(){document.getElementById('char-sheet-dlg').classList.add('show');switchSheetTab('attrs')}
 function switchSheetTab(tab){document.querySelectorAll('.sheet-tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===tab)});var content=document.getElementById('char-sheet-content');var c=char||{};if(tab==='attrs'){var attrs=[['STR',c.STR||50],['CON',c.CON||50],['SIZ',c.SIZ||50],['DEX',c.DEX||50],['APP',c.APP||50],['INT',c.INT||50],['POW',c.POW||50],['EDU',c.EDU||50],['LUK',c.LUK||50]];var h='<div class="sheet-grid">';attrs.forEach(function(a){h+='<div class="sheet-row"><label>'+a[0]+'</label><span>'+a[1]+'</span></div>'});h+='</div><div style="margin-top:var(--sp-3);padding-top:var(--sp-3);border-top:1px solid var(--border-dark)"><div class="sheet-row"><label>HP</label><span>'+(c.hp||0)+'/'+(c.hpMax||0)+'</span></div><div class="sheet-row"><label>MP</label><span>'+(c.mp||0)+'/'+(c.mpMax||0)+'</span></div><div class="sheet-row"><label>SAN</label><span>'+(c.san||0)+'/'+(c.sanMax||0)+'</span></div><div class="sheet-row"><label>DB</label><span>'+(c.DB||'0')+'</span></div><div class="sheet-row"><label>Build</label><span>'+(c.Build||0)+'</span></div><div class="sheet-row"><label>MOV</label><span>'+(c.MOV||7)+'</span></div></div>';content.innerHTML=h}else if(tab==='skills'){var sk=c.skills||{};var keys=Object.keys(sk).sort();h='<input class="sheet-search" placeholder="搜索技能..." oninput="var s=document.getElementById(\'sheet-skill-list\');if(!s)return;s.querySelectorAll(\'.sheet-row\').forEach(function(r){r.style.display=r.querySelector(\'label\').textContent.toLowerCase().indexOf(this.value.toLowerCase())>=0?\'flex\':\'none\'})"><div id="sheet-skill-list">';keys.forEach(function(k){h+='<div class="sheet-row"><label>'+k+'</label><span>'+sk[k]+'%</span></div>'});h+='</div>';content.innerHTML=h}else if(tab==='combat'){h='<div style="font-size:12px;color:var(--text-dim);margin-bottom:var(--sp-3)">武器与战斗技能</div>';var weapons=[{name:'徒手',dmg:'1d3',skill:'格斗(斗殴)'},{name:'小刀',dmg:'1d6',skill:'格斗(斗殴)'},{name:'棍棒',dmg:'1d8',skill:'格斗(斗殴)'},{name:'手枪',dmg:'1d10',skill:'射击(手枪)'}];weapons.forEach(function(w){var skVal=(c.skills&&c.skills[w.skill])||0;h+='<div class="sheet-row"><label>'+w.name+' ('+w.skill+')</label><span>'+w.dmg+' / '+skVal+'%</span></div>'});h+='<div style="margin-top:var(--sp-3);padding-top:var(--sp-3);border-top:1px solid var(--border-dark)"><div class="sheet-row"><label>闪避</label><span>'+(c.skills&&c.skills['闪避']||0)+'%</span></div></div>';content.innerHTML=h}else if(tab==='gear'){var gear=c.equipment||['手电筒','笔记本','小刀'];h='<div style="font-size:12px;color:var(--text-dim);margin-bottom:var(--sp-3)">随身装备</div>';gear.forEach(function(g){h+='<div class="sheet-row"><label>'+g+'</label><span>1</span></div>'});content.innerHTML=h}else if(tab==='bg'){var fields=[{k:'name',l:'姓名'},{k:'occupation',l:'职业'},{k:'age',l:'年龄'},{k:'residence',l:'居住地'},{k:'personalDescription',l:'外貌'},{k:'ideology',l:'信仰'},{k:'significantPerson',l:'重要之人'},{k:'meaningfulLocation',l:'意义之地'},{k:'treasuredPossession',l:'珍视之物'},{k:'traits',l:'特质'},{k:'injuries',l:'伤痕'},{k:'phobias',l:'恐惧症'},{k:'backgroundStory',l:'背景故事'}];h='<div style="grid-template-columns:1fr">';fields.forEach(function(f){var val=c[f.k]||'';if(f.k==='backgroundStory')h+='<div style="margin-top:var(--sp-2);font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px">'+f.l+'</div><div style="font-size:12px;color:var(--text-parchment);line-height:1.6;margin-top:var(--sp-1)">'+(val||'—')+'</div>';else h+='<div class="sheet-row"><label>'+f.l+'</label><span>'+(val||'—')+'</span></div>'});content.innerHTML=h}}
-async function doSanCheck(){var r=document.getElementById('san-reason').value||'恐惧',l=document.getElementById('san-loss').value||'0/1d6';document.getElementById('san-dialog').classList.remove('show');try{var resp=await fetch(API+'/roll/san-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentSAN:char.san,sanLoss:l,reason:r})});var d=await resp.json();char.san=d.newSAN;updateVitals();addDiceResult(d,'SAN检定');persistSAN();await sendToAI('SAN检定: '+r,{sanResult:d});}catch(e){}}
-async function rollD100(){try{var r=await fetch(API+'/roll/d100');var d=await r.json();addSystemMsg('🎯 D100: '+d.roll);}catch(e){}}
-async function rollSkill(skill,val){var actionText=document.getElementById('input-field').value.trim()||('进行'+skill+'检定');try{var r=await fetch(API+'/roll/skill-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skillName:skill,skillValue:val})});var d=await r.json();addDiceResult(d,skill+'检定');document.getElementById('input-field').value='';await sendToAI(actionText,{checkResult:d});}catch(e){}}
-async function quickDamage(formula){try{var r=await fetch(API+'/roll/damage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({formula:formula})});var d=await r.json();addSystemMsg('💥 '+d.formula+' → '+d.total+' 伤害');}catch(e){}}
+async function doSanCheck(){var r=document.getElementById('san-reason').value||'恐惧',l=document.getElementById('san-loss').value||'0/1d6';document.getElementById('san-dialog').classList.remove('show');try{var resp=await fetch(API+'/roll/san-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentSAN:char.san,sanLoss:l,reason:r})});var d=await resp.json();char.san=d.newSAN;updateVitals();addDiceResult(d,'SAN检定');persistSAN();await sendToAI('SAN检定: '+r,{sanResult:d});}catch(e){console.error(e)}}
+async function rollD100(){try{var r=await fetch(API+'/roll/d100');var d=await r.json();addSystemMsg('🎯 D100: '+d.roll);}catch(e){console.error(e)}}
+async function rollSkill(skill,val){var actionText=document.getElementById('input-field').value.trim()||('进行'+skill+'检定');try{var r=await fetch(API+'/roll/skill-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skillName:skill,skillValue:val})});var d=await r.json();addDiceResult(d,skill+'检定');document.getElementById('input-field').value='';await sendToAI(actionText,{checkResult:d});}catch(e){console.error(e)}}
+async function quickDamage(formula){try{var r=await fetch(API+'/roll/damage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({formula:formula})});var d=await r.json();addSystemMsg('💥 '+d.formula+' → '+d.total+' 伤害');}catch(e){console.error(e)}}
 
 function toggleCombat(){document.getElementById('combat-dlg').classList.add('show');renderCombatants()}
 function addCombatant(){var n=document.getElementById('cbt-name').value||'NPC',hp=parseInt(document.getElementById('cbt-hp').value)||10,dex=parseInt(document.getElementById('cbt-dex').value)||50;combatants.push({name:n,maxHp:hp,hp:hp,dex:dex});document.getElementById('cbt-name').value='';renderCombatants()}
@@ -246,16 +271,16 @@ function addSystemMsg(text){document.getElementById('messages').insertAdjacentHT
 function addPlayerMsg(text){document.getElementById('messages').insertAdjacentHTML('beforeend','<div class="player-action"><div class="player-action-label">'+char.name+'</div><div class="player-action-text">'+text+'</div></div>');scrollMsgs()}
 function addKpMsg(text){document.getElementById('messages').insertAdjacentHTML('beforeend','<div class="narrative-block"><div class="narrative-sender">守秘人</div><div class="narrative-text">'+text+'</div></div>');scrollMsgs()}
 function scrollMsgs(){var m=document.getElementById('messages');setTimeout(function(){m.scrollTop=m.scrollHeight},50)}
-function updateVitals(){document.getElementById('san-val').textContent=char.san+'/'+char.sanMax;document.getElementById('hp-val').textContent=char.hp+'/'+char.hpMax;document.getElementById('mp-val').textContent=char.mp+'/'+char.mpMax;document.getElementById('san-bar').style.width=(char.san/char.sanMax*100)+'%';document.getElementById('hp-bar').style.width=(char.hp/char.hpMax*100)+'%';document.getElementById('mp-bar').style.width=(char.mp/char.mpMax*100)+'%'}
+function updateVitals(){var sv=document.getElementById('san-val'),hv=document.getElementById('hp-val'),mv=document.getElementById('mp-val'),sb=document.getElementById('san-bar'),hb=document.getElementById('hp-bar'),mb=document.getElementById('mp-bar');if(sv)sv.textContent=char.san+'/'+char.sanMax;if(hv)hv.textContent=char.hp+'/'+char.hpMax;if(mv)mv.textContent=char.mp+'/'+char.mpMax;if(sb)sb.style.width=(char.san/char.sanMax*100)+'%';if(hb)hb.style.width=(char.hp/char.hpMax*100)+'%';if(mb)mb.style.width=(char.mp/char.mpMax*100)+'%';renderParty()}
 
-async function sendToAI(text,extra){var btn=document.getElementById('send-btn');btn.disabled=true;btn.textContent='...';var payload={messages:[{role:'user',content:text}],characterSummary:buildCharSummary()};var settings=JSON.parse(localStorage.getItem('st-coc-settings')||'{}');if(settings.model)payload.model=settings.model;if(settings.temperature!==undefined)payload.temperature=settings.temperature;if(settings.kpStyle)payload.kpStyle=settings.kpStyle;if(extra&&extra.checkResult)payload.checkResult=extra.checkResult;if(extra&&extra.sanResult)payload.sanResult=extra.sanResult;if(useStream){payload.stream=true}
+async function sendToAI(text,extra){var btn=document.getElementById('send-btn');btn.disabled=true;btn.textContent='...';var payload={messages:[{role:'user',content:text}],characterSummary:buildCharSummary()};var settings=JSON.parse(localStorage.getItem('st-coc-settings')||'{}');if(settings.model)payload.model=settings.model;if(settings.temperature!==undefined)payload.temperature=settings.temperature;if(settings.kpStyle)payload.kpStyle=settings.kpStyle;if(extra&&extra.checkResult)payload.checkResult=extra.checkResult;if(extra&&extra.sanResult)payload.sanResult=extra.sanResult;var activeMember=findPartyMember(activeCharId);if(activeMember&&activeMember.control==='ai'&&activeMember.aiModel){payload.model=activeMember.aiModel;if(activeMember.aiApiKey)payload.apiKey=activeMember.aiApiKey;if(activeMember.aiBaseUrl)payload.baseUrl=activeMember.aiBaseUrl;if(activeMember.aiPersonality)payload.characterPersonality=activeMember.aiPersonality}if(useStream){payload.stream=true}
 try{
 if(useStream){
 var resp=await fetch(API+'/generate/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
 var reader=resp.body.getReader();
 var decoder=new TextDecoder();
-var msgDiv=document.createElement('div');msgDiv.className='narrative-block';msgDiv.innerHTML='<div class="narrative-sender">守秘人</div><div class="narrative-text" id="stream-text"></div>';document.getElementById('messages').appendChild(msgDiv);scrollMsgs();
-var streamText=document.getElementById('stream-text');
+var msgDiv=document.createElement('div');msgDiv.className='narrative-block';var streamDiv=document.createElement('div');streamDiv.className='narrative-text';msgDiv.innerHTML='<div class="narrative-sender">守秘人</div>';msgDiv.appendChild(streamDiv);document.getElementById('messages').appendChild(msgDiv);scrollMsgs();
+var streamText=streamDiv;
 var buffer='';
 try{
 while(true){
@@ -271,33 +296,37 @@ var data=line.slice(6);
 if(data==='[DONE]')continue;
 try{
 var json=JSON.parse(data);
-if(json.content)streamText.textContent+=json.content;scrollMsgs()
-}catch(e){}
+if(json.choices&&json.choices[0]&&json.choices[0].delta&&json.choices[0].delta.content)streamText.textContent+=json.choices[0].delta.content;scrollMsgs()
+}catch(e){console.error(e)}
 }
 }
-}}catch(e){}
-if(buffer.trim()){try{var remaining=JSON.parse(buffer.trim().slice(6));if(remaining.content)streamText.textContent+=remaining.content}catch(e){}}
+}}catch(e){console.error(e)}
+if(buffer.trim()){try{var remaining=JSON.parse(buffer.trim().slice(6));if(remaining.choices&&remaining.choices[0]&&remaining.choices[0].delta&&remaining.choices[0].delta.content)streamText.textContent+=remaining.choices[0].delta.content}catch(e){console.error(e)}}
 }else{
 var resp=await fetch(API+'/generate/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
 var d=await resp.json();if(d.content)addKpMsg(d.content);else addSystemMsg('AI 响应异常: '+(d.error||'未知错误'));
 }
 }catch(e){addSystemMsg('❌ 连接失败: '+e.message)}btn.disabled=false;btn.textContent='发送'}
-function sendMessage(){var ta=document.getElementById('input-field');var text=ta.value.trim();if(!text)return;ta.value='';addPlayerMsg(text);sendToAI(text);}
-async function loadScene(){try{var r=await fetch(API+'/scene/current');var d=await r.json();document.getElementById('scene-name').textContent=d.scene.name;try{localStorage.setItem('_coc_scene',d.scene.id||'intro')}catch(e){}var pips='';for(var i=0;i<6;i++)pips+='<div class="dread-pip '+(i<d.scene.dread?'filled':'empty')+'"></div>';document.getElementById('dread-pips').innerHTML=pips;var dd=['','平静','不安','紧张','恐惧','恐怖','梦魇'];document.getElementById('dread-text').textContent=dd[d.scene.dread]||'';var ex=document.getElementById('scene-exits');if(!ex){ex=document.createElement('div');ex.id='scene-exits';ex.style.marginTop='8px';document.querySelector('.scene-info').appendChild(ex);}if(d.scene.exits&&d.scene.exits.length>0){ex.innerHTML='<div class="scene-label" style="margin-bottom:4px">行动方向</div>'+d.scene.exits.map(function(e){return'<button class="action-btn" style="width:100%;margin-bottom:4px;font-size:11px" onclick="transitionScene(\''+e.to+'\',\''+e.condition.replace(/\'/g,"\\'")+'\')">'+e.condition+'</button>';}).join('');}else{ex.innerHTML='';}var npcPanel=document.getElementById('npc-panel');if(!npcPanel){npcPanel=document.createElement('div');npcPanel.id='npc-panel';npcPanel.className='npc-panel';var si=document.querySelector('.scene-info');si.appendChild(npcPanel)}if(d.scene.npcs&&d.scene.npcs.length>0){var npcH='<div class="scene-label" style="margin-bottom:4px">在场 NPC</div>';d.scene.npcs.forEach(function(n){npcH+='<div class="npc-item"><div><div class="npc-name">'+n.name+' <span style="font-size:9px;color:var(--text-dim)">'+n.role+'</span></div><div class="npc-speak">'+n.speak+'</div></div><button class="save-btn" onclick="talkToNPC(\''+n.name.replace(/'/g,"\\'")+'\',\''+n.role.replace(/'/g,"\\'")+'\')">💬 对话</button></div>'});npcPanel.innerHTML=npcH}else{npcPanel.innerHTML=''}}catch(e){}}
-async function transitionScene(to,condition){try{var r=await fetch(API+'/scene/transition',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:to})});var d=await r.json();if(d.error){addSystemMsg('场景切换失败: '+d.error);return;}addSystemMsg('➡️ 进入：'+d.scene.name);await loadScene();saveGame();await sendToAI('调查员'+condition);}catch(e){addSystemMsg('❌ 场景切换失败');}}
+function sendMessage(){var ta=document.getElementById('input-field');var text=ta.value.trim();if(!text)return;ta.value='';if(processInput(text))return;addPlayerMsg(text);sendToAI(text);}
+async function loadScene(){try{var r=await fetch(API+'/scene/current');var d=await r.json();document.getElementById('scene-name').textContent=d.scene.name;try{localStorage.setItem('_coc_scene',d.scene.id||'intro')}catch(e){console.error(e)}var pips='';for(var i=0;i<6;i++)pips+='<div class="dread-pip '+(i<d.scene.dread?'filled':'empty')+'"></div>';document.getElementById('dread-pips').innerHTML=pips;var dd=['','平静','不安','紧张','恐惧','恐怖','梦魇'];document.getElementById('dread-text').textContent=dd[d.scene.dread]||'';var ex=document.getElementById('scene-exits');if(ex)ex.remove();var npcDiv=document.getElementById('scene-npcs');if(npcDiv&&d.scene.npcs&&d.scene.npcs.length>0){var npcH='';d.scene.npcs.forEach(function(n){npcH+='<span class="scene-npc-tag" onclick="talkToNPC(\''+n.name.replace(/'/g,"\\'")+'\',\''+n.role.replace(/'/g,"\\'")+'\')">'+n.name+'</span>'});npcDiv.innerHTML=npcH}else if(npcDiv){npcDiv.innerHTML=''}}catch(e){console.error(e)}}
+
 
 function dbToLocal(dbChar){var c={name:dbChar.name,occupation:dbChar.occupation_name||'调查员',age:dbChar.age||'',sex:dbChar.sex||'',residence:dbChar.residence||'',birthplace:dbChar.birthplace||'',san:dbChar.san_current||70,sanMax:dbChar.san_max||99,hp:dbChar.hp_current||11,hpMax:dbChar.hp_max||11,mp:dbChar.mp_current||14,mpMax:dbChar.mp_max||14,STR:dbChar.str||50,CON:dbChar.con||50,SIZ:dbChar.siz||50,DEX:dbChar.dex||50,APP:dbChar.app||50,INT:dbChar.int_||50,POW:dbChar.pow||50,EDU:dbChar.edu||50,LUK:dbChar.luk||50,DB:dbChar.db||'0',Build:dbChar.build||0,MOV:dbChar.mov||7,creditRating:dbChar.credit_rating||0,skills:{},personalDescription:dbChar.personal_description||'',ideology:dbChar.ideology||'',significantPerson:dbChar.significant_person||'',meaningfulLocation:dbChar.meaningful_location||'',treasuredPossession:dbChar.treasured_possession||'',traits:dbChar.traits||'',injuries:dbChar.injuries_scars||'',phobias:dbChar.phobias_manias||'',backgroundStory:dbChar.background_story||'',equipment:['手电筒','笔记本','小刀']};if(dbChar.skills&&dbChar.skills.length>0)dbChar.skills.forEach(function(s){c.skills[s.skill_name]=s.current_value});return c;}
-async function persistSAN(){if(!charId)return;try{await fetch(API+'/character/'+charId+'/san',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({newSAN:char.san})});}catch(e){}}
-async function persistHP(){if(!charId)return;try{await fetch(API+'/character/'+charId+'/hp',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({newHP:char.hp})});}catch(e){}}
-async function initCharacter(){try{var r=await fetch(API+'/character/'+charId);if(r.status===200){var dbChar=await r.json();char=dbToLocal(dbChar);partyChars[charId]=char;activeCharId=charId;return};var createPayload={id:charId,name:char.name,occupation_name:char.occupation,hp_max:char.hpMax,hp_current:char.hp,mp_max:char.mpMax,mp_current:char.mp,san_max:char.sanMax,san_current:char.san,san_start:char.san};await fetch(API+'/character',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(createPayload)});var skillsArr=[];var sk=char.skills||{};for(var k in sk)skillsArr.push({name:k,value:sk[k]});await fetch(API+'/character/'+charId+'/skills',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skills:skillsArr})});}catch(e){}}
-function buildSkillGrid(){var grid=document.getElementById('skill-grid'),sk=char.skills||{},keys=Object.keys(sk).slice(0,12);grid.innerHTML=keys.map(function(k){return '<button class="skill-btn" onclick="rollSkill(\''+k+'\','+sk[k]+')"><span class="skill-btn-name">'+k+'</span><span class="skill-btn-value">'+sk[k]+'%</span></button>'}).join('')}
+async function persistSAN(){if(!charId)return;try{await fetch(API+'/character/'+charId+'/san',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({newSAN:char.san})});}catch(e){console.error(e)}}
+async function persistHP(){if(!charId)return;try{await fetch(API+'/character/'+charId+'/hp',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({newHP:char.hp})});}catch(e){console.error(e)}}
+async function initCharacter(){try{var r=await fetch(API+'/character/'+charId);if(r.status===200){var dbChar=await r.json();char=dbToLocal(dbChar);party=[{id:charId,name:char.name,charData:char,control:'player',aiModel:null,aiApiKey:null,aiBaseUrl:null,aiPersonality:null}];activeCharId=charId;return};var createPayload={id:charId,name:char.name,occupation_name:char.occupation,hp_max:char.hpMax,hp_current:char.hp,mp_max:char.mpMax,mp_current:char.mp,san_max:char.sanMax,san_current:char.san,san_start:char.san};await fetch(API+'/character',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(createPayload)});var skillsArr=[];var sk=char.skills||{};for(var k in sk)skillsArr.push({name:k,value:sk[k]});await fetch(API+'/character/'+charId+'/skills',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skills:skillsArr})});}catch(e){console.error(e)}}
+function buildSkillGrid(){var grid=document.getElementById('skill-grid');if(!grid)return;var sk=char.skills||{},keys=Object.keys(sk).slice(0,12);grid.innerHTML=keys.map(function(k){return '<button class="skill-btn" onclick="rollSkill(\''+k+'\','+sk[k]+')"><span class="skill-btn-name">'+k+'</span><span class="skill-btn-value">'+sk[k]+'%</span></button>'}).join('')}
+function renderParty(){var list=document.getElementById('party-list');if(!list||!party||party.length===0){if(!party)party=[];if(party.length===0&&char&&char.name){party=[{id:charId,name:char.name,charData:char,control:'player',aiModel:null,aiApiKey:null,aiBaseUrl:null,aiPersonality:null}]}if(party.length===0)return}var h='';party.forEach(function(member,i){var c=member.charData;var hpPct=Math.round(c.hp/c.hpMax*100);var sanPct=Math.round(c.san/c.sanMax*100);var isActive=member.id===activeCharId;var controlIcon=member.control==='ai'?'🤖':'👤';var controlTitle=member.control==='ai'?'AI托管中 — 点击切换为玩家控制':'玩家控制 — 点击切换为AI托管';var modelBadge=member.control==='ai'&&member.aiModel?'<span style="font-size:8px;color:var(--san-gold);background:rgba(196,163,90,0.1);padding:1px 4px;border-radius:2px;margin-left:4px">'+member.aiModel+'</span>':'';h+='<div class="char-card'+(isActive?' active':'')+'" style="'+(isActive?'border-color:var(--border-gold);':'')+'">';h+='<div style="display:flex;justify-content:space-between;align-items:center">';h+='<div class="char-card-name" onclick="setActiveChar(\''+member.id+'\')">'+c.name+'</div>';h+='<div style="display:flex;align-items:center;gap:4px">';h+='<span onclick="toggleCharControl(\''+member.id+'\')" title="'+controlTitle+'" style="cursor:pointer;font-size:12px">'+controlIcon+'</span>';h+='<button onclick="configureCharAI(\''+member.id+'\')" style="background:none;border:none;cursor:pointer;font-size:10px;padding:0 2px" title="配置AI模型">⚙️</button>';h+='</div></div>';h+='<div class="char-card-occ">'+(c.occupation||'调查员')+modelBadge+'</div>';h+='<div class="char-card-vitals"><div class="char-vital-row"><span class="char-vital-label hp">HP</span><div class="char-vital-bar-track"><div class="char-vital-bar-fill hp" style="width:'+hpPct+'%"></div></div><span class="char-vital-text">'+c.hp+'/'+c.hpMax+'</span></div>';h+='<div class="char-vital-row"><span class="char-vital-label san">SAN</span><div class="char-vital-bar-track"><div class="char-vital-bar-fill san" style="width:'+sanPct+'%"></div></div><span class="char-vital-text">'+c.san+'/'+c.sanMax+'</span></div></div></div>'});list.innerHTML=h}
+function toggleCharControl(id){var member=findPartyMember(id);if(!member)return;member.control=member.control==='ai'?'player':'ai';if(member.control==='ai'){member.aiModel=member.aiModel||'deepseek-v4-pro';addSystemMsg('🤖 '+member.name+' 已切换为AI托管 ('+member.aiModel+')')}else{addSystemMsg('👤 '+member.name+' 已切换为玩家控制')}renderParty()}
+function configureCharAI(id){var member=findPartyMember(id);if(!member)return;var model=prompt('AI模型 (如 deepseek-v4-pro, kimi-k2.6):',member.aiModel||'');if(model===null)return;var apiKey=prompt('API Key (留空使用全局):',member.aiApiKey||'');if(apiKey===null)return;var baseUrl=prompt('API Base URL (留空使用默认):',member.aiBaseUrl||'');if(baseUrl===null)return;var personality=prompt('角色人格描述 (留空使用默认):',member.aiPersonality||'');if(personality===null)return;member.aiModel=model;member.aiApiKey=apiKey||null;member.aiBaseUrl=baseUrl||null;member.aiPersonality=personality||null;addSystemMsg('⚙️ '+member.name+' 的AI配置已更新');renderParty()}
+function addPartyChar(){var choice=confirm('导入 ST 角色卡?\n\n确定=导入角色卡\n取消=手动创建');if(choice){openStImport()}else{openCharCreator()}}
+function addNpcMsg(name,text){document.getElementById('messages').insertAdjacentHTML('beforeend','<div class="narrative-block"><div class="narrative-sender">'+name+'</div><div class="npc-msg-text">'+text+'</div></div>');scrollMsgs()}
 
 document.getElementById('input-field').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 function showTitleScreen(){document.getElementById('title-screen').style.display='flex'}
-function hideTitleScreen(){var ts=document.getElementById('title-screen');ts.style.opacity='0';setTimeout(function(){ts.style.display='none';document.querySelector('.game-container').style.display='grid'},600)}
+function hideTitleScreen(){var ts=document.getElementById('title-screen');ts.style.opacity='0';setTimeout(function(){ts.style.display='none';document.querySelector('.game-container').classList.add('active')},600)}
 function startNewGame(){hideTitleScreen();setTimeout(showModuleSelector,300)}
-function continueGame(){var save=localStorage.getItem('st-coc-save');if(!save){document.getElementById('continue-hint').style.display='block';return}hideTitleScreen();setTimeout(enterGame,300)}
-function enterGame(){document.querySelector('.game-container').style.display='grid';document.getElementById('title-screen').style.display='none';document.getElementById('module-selector').style.display='none';document.getElementById('char-selector').style.display='none';loadModules();initCharacter().then(function(){partyChars[charId]=char;updatePartySelect();updateVitals();buildSkillGrid();loadScene();setInterval(loadScene,5000);if(window.pollClues)setInterval(pollClues,10000)})}
+function enterGame(){document.querySelector('.game-container').classList.add('active');document.getElementById('title-screen').style.display='none';document.getElementById('module-selector').style.display='none';document.getElementById('char-selector').style.display='none';loadModules();initCharacter().then(function(){party=[{id:charId,name:char.name,charData:char,control:'player',aiModel:null,aiApiKey:null,aiBaseUrl:null,aiPersonality:null}];updateVitals();renderParty();return loadScene().then(function(){startAutoSave();setInterval(loadScene,5000);if(window.pollClues)setInterval(pollClues,10000);addSystemMsg('📖 游戏开始...');sendToAI('游戏开始。请以守秘人身份，用沉浸式的语言介绍当前场景。描述环境、氛围、在场的NPC。不要提供行动选项——等待调查员自行决定行动。')})})}
 var modules=[];
 async function loadModules(){try{var r=await fetch('st-coc-ui/modules/haunting.json');if(r.ok){var d=await r.json();modules=[d];return}modules=[{id:'haunting',name:'鬼屋',difficulty:'中等',duration:'3-4小时',era:'1920s',desc:'一个看似普通的遗产继承委托，引向波士顿郊区一栋被诅咒的老宅……'}];renderModuleGrid()}catch(e){modules=[{id:'haunting',name:'鬼屋',difficulty:'中等',duration:'3-4小时',era:'1920s',desc:'一个看似普通的遗产继承委托，引向波士顿郊区一栋被诅咒的老宅……'}];renderModuleGrid()}}
 function showModuleSelector(){document.getElementById('module-selector').style.display='flex';document.getElementById('module-selector').style.opacity='1';if(modules.length===0){document.getElementById('module-grid').innerHTML='<p style="color:var(--text-dim);font-size:12px">加载模组列表...</p>';loadModules().then(function(){renderModuleGrid()})}else{renderModuleGrid()}}
@@ -305,39 +334,638 @@ function renderModuleGrid(){var h=modules.map(function(m){return '<div class="mo
 function selectModule(id){document.getElementById('module-selector').style.display='none';showCharSelector()}
 function showCharSelector(){document.getElementById('char-selector').style.display='flex'}
 function selectCharacterOption(opt){if(opt==='quick'){document.getElementById('char-selector').style.display='none';enterGame()}else if(opt==='new'){document.getElementById('char-selector').style.display='none';openCharCreator()}else if(opt==='load'){var save=localStorage.getItem('st-coc-save');if(!save){alert('暂无存档');return}document.getElementById('char-selector').style.display='none';loadGame(JSON.parse(save))}}
-async function pollClues(){try{var r=await fetch(API+'/scene/clues');if(!r.ok)return;var clues=await r.json();renderClues(clues)}catch(e){}}
+async function pollClues(){try{var r=await fetch(API+'/scene/clues');if(!r.ok)return;var clues=await r.json();renderClues(clues)}catch(e){console.error(e)}}
 function renderClues(clues){var list=document.getElementById('clue-list');var countEl=document.getElementById('clue-count');if(!list||!countEl)return;countEl.textContent='已发现 '+(clues?clues.length:0)+' 条线索';if(!clues||clues.length===0){list.innerHTML='';return}list.innerHTML=clues.map(function(c,i){return '<div class="clue-card" onclick="this.classList.toggle(\'expanded\')"><div class="clue-card-title">'+(c.title||c.id||'线索')+'</div><div class="clue-card-text">'+(c.text||c.description||'')+'</div></div>'}).join('')}
 function showSettings(){document.getElementById('settings-dlg').classList.add('show')}
+var activeTool=null;function toggleTool(tool){var panel=document.getElementById('tools-panel');if(activeTool===tool&&panel.classList.contains('expanded')){closeTools();return}activeTool=tool;panel.classList.add('expanded');document.querySelectorAll('.tool-icon').forEach(function(b){b.classList.toggle('active',b.title===tool||b.getAttribute('onclick').indexOf(tool)>=0)});document.getElementById('tool-title').textContent={dice:'骰子',items:'道具',notes:'笔记',combat:'战斗',ref:'参考'}[tool]||'工具';renderToolContent(tool)}function closeTools(){activeTool=null;document.getElementById('tools-panel').classList.remove('expanded');document.querySelectorAll('.tool-icon').forEach(function(b){b.classList.remove('active')})}function renderToolContent(tool){var b=document.getElementById('tool-body');if(tool==='dice'){b.innerHTML='<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px">输入 .r 或 .rd 快速掷骰</div><div style="background:var(--bg-surface);border:1px solid var(--border-dark);border-radius:var(--r-md);padding:8px;margin-bottom:8px"><div style="font-size:10px;color:var(--san-gold);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">骰子命令</div><div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);line-height:1.8"><span style="color:var(--san-gold-dim)">.ra</span> 技能名   — 技能检定<br><span style="color:var(--san-gold-dim)">.rc</span> 属性名   — 属性检定<br><span style="color:var(--san-gold-dim)">.r</span> XdY     — 自定义骰子<br><span style="color:var(--san-gold-dim)">.rd</span>        — 掷 D100</div></div><button class="action-btn primary" onclick="rollD100()" style="width:100%;margin-bottom:6px">🎲 掷 D100</button><button class="action-btn" onclick="quickRoll1D6()" style="width:100%;margin-bottom:6px">掷 1D6</button><button class="action-btn" onclick="quickRoll1D3()" style="width:100%">掷 1D3</button>'}else if(tool==='items'){b.innerHTML='<div style="font-size:12px;color:var(--text-dim);text-align:center;padding:var(--sp-4)">暂无可用道具</div>'}else if(tool==='notes'){b.innerHTML='<button class="action-btn" onclick="addSystemMsg(\'笔记功能即将推出\')" style="width:100%">点击新建笔记</button>'}else if(tool==='combat'){b.innerHTML='<button class="action-btn primary" onclick="toggleCombat();closeTools()" style="width:100%;margin-bottom:6px">⚔️ 打开战斗面板</button>注意：战斗面板中可以看到自己和NPC的血量，可以进行攻击和闪避'}else if(tool==='ref'){var sk=char.skills||{};var keys=Object.keys(sk).sort();var h='<div style="font-size:10px;color:var(--text-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">技能速查</div>';keys.slice(0,20).forEach(function(k){h+='<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--border-dark);font-size:10px"><span>'+k+'</span><span style="font-family:var(--font-mono);color:var(--text-muted)">'+sk[k]+'%</span></div>'});b.innerHTML=h}}function quickRoll1D6(){var r=Math.floor(Math.random()*6)+1;addSystemMsg('🎲 1D6: '+r)}function quickRoll1D3(){var r=Math.floor(Math.random()*3)+1;addSystemMsg('🎲 1D3: '+r)}
 function loadSettings(){var s=JSON.parse(localStorage.getItem('st-coc-settings')||'{}');if(s.model)document.getElementById('setting-model').value=s.model;if(s.temperature!==undefined){document.getElementById('setting-temp').value=s.temperature;document.getElementById('setting-temp-val').textContent=s.temperature}var k=s.kpStyle||'classic';document.querySelectorAll('.style-btn').forEach(function(b){b.classList.toggle('active',b.dataset.style===k)})}
 function saveSettings(){var s={model:document.getElementById('setting-model').value,temperature:parseFloat(document.getElementById('setting-temp').value),kpStyle:document.querySelector('.style-btn.active').dataset.style};localStorage.setItem('st-coc-settings',JSON.stringify(s));document.getElementById('settings-dlg').classList.remove('show')}
 function setKpStyle(btn){document.querySelectorAll('.style-btn').forEach(function(b){b.classList.remove('active')});btn.classList.add('active')}
 document.getElementById('setting-temp').addEventListener('input',function(){document.getElementById('setting-temp-val').textContent=this.value});
 async function resetGame(){if(!confirm('确定要重置游戏吗？所有进度将丢失。'))return;try{await fetch(API+'/scene/reset',{method:'POST'});localStorage.removeItem('st-coc-settings');localStorage.removeItem('st-coc-save');location.reload()}catch(e){alert('重置失败')}}
-var ccData={step:1,attrs:{},occupation:null,skills:{},background:{},occupationPoints:0,interestPoints:0};
+var ccData={step:1,era:'1920s',method:'roll',attrs:{},luk:50,age:30,creditRating:0,occupation:null,occSkills:{},intSkills:{},occPointsLeft:0,intPointsLeft:0,background:{},equipment:[],weapon:null,qbSelectedValue:null,ccActiveCatTab:'all'};
 var ccOccupations=[];
-function openCharCreator(){document.getElementById('char-creator').style.display='flex';ccData={step:1,attrs:{},occupation:null,skills:{},background:{},occupationPoints:0,interestPoints:0};rollAttributes();updateCcUI()}
+var ccSkillCategories={
+'社交':[{n:'话术',b:5},{n:'魅惑',b:15},{n:'恐吓',b:15},{n:'说服',b:10},{n:'取悦',b:15},{n:'信用评级',b:0}],
+'战斗':[{n:'格斗',b:25},{n:'射击(手枪)',b:20},{n:'射击(步枪)',b:25},{n:'闪避',b:-1}],
+'知识':[{n:'侦查',b:25},{n:'聆听',b:20},{n:'图书馆使用',b:20},{n:'心理学',b:10},{n:'神秘学',b:5},{n:'克苏鲁神话',b:0},{n:'历史',b:5},{n:'法律',b:5},{n:'博物学',b:10},{n:'估价',b:5},{n:'人类学',b:1},{n:'考古学',b:1},{n:'电子学',b:1},{n:'科学-生物',b:1},{n:'科学-化学',b:1},{n:'科学-物理',b:1},{n:'科学-地质',b:1},{n:'科学-天文',b:1},{n:'科学-药学',b:1}],
+'操作':[{n:'急救',b:30},{n:'锁匠',b:1},{n:'机械维修',b:10},{n:'电气维修',b:10},{n:'爆破',b:1},{n:'伪造',b:1},{n:'乔装',b:1},{n:'驯兽',b:1},{n:'巧手',b:1},{n:'潜水',b:1},{n:'重机械操作',b:1},{n:'驾驶-汽车',b:20},{n:'驾驶-船',b:1},{n:'驾驶-马',b:5},{n:'领航',b:10},{n:'追踪',b:10}],
+'生存':[{n:'潜行',b:20},{n:'攀爬',b:20},{n:'游泳',b:20},{n:'跳跃',b:20},{n:'投掷',b:20},{n:'生存',b:10}]
+};
+var ccWeapons=[{n:'徒手',d:'1d3'},{n:'小刀',d:'1d6'},{n:'棍棒',d:'1d8'},{n:'手枪(.38)',d:'1d10'},{n:'霰弹枪(12g)',d:'4d6'}];
+var ccEquipmentOpts=['手电筒','笔记本','小刀','绳索','火柴','指南针','急救包','钢笔'];
+var ccCreditTable={0:{cash:'0.50',assets:'无'},'1-9':{cash:'1×',assets:'50'},'10-29':{cash:'2×',assets:'500'},'30-49':{cash:'5×',assets:'2000'},'50-69':{cash:'10×',assets:'5000'},'70-89':{cash:'20×',assets:'10000'},'90+':{cash:'50×',assets:'30000+'}};
+
+function computeDerived(){
+    var a=ccData.attrs;
+    if(!a||!a.STR)return{};
+    var strSiz=a.STR+a.SIZ;
+    var db='0';var build=0;
+    if(strSiz>=2&&strSiz<=64){db='-2';build=-2}
+    else if(strSiz<=84){db='-1';build=-1}
+    else if(strSiz<=124){db='0';build=0}
+    else if(strSiz<=164){db='+1d4';build=1}
+    else if(strSiz<=204){db='+1d6';build=2}
+    var dexSiz=a.DEX+a.SIZ;
+    var mov=7;
+    if(dexSiz<65)mov=7;else if(dexSiz<=84)mov=8;else mov=9;
+    return{hp:Math.floor((a.CON+a.SIZ)/10),san:a.POW,mp:Math.floor(a.POW/5),db:db,build:build,mov:mov};
+}
+
+function openCharCreator(){
+    document.getElementById('char-creator').style.display='flex';
+    ccData={step:1,era:'1920s',method:'roll',attrs:{},luk:50,age:30,creditRating:0,occupation:null,occSkills:{},intSkills:{},occPointsLeft:0,intPointsLeft:0,background:{},equipment:[],weapon:null,qbSelectedValue:null,ccActiveCatTab:'all'};
+    updateCcUI();
+}
+
 function closeCharCreator(){document.getElementById('char-creator').style.display='none'}
-function updateCcUI(){for(var i=1;i<=5;i++){document.getElementById('cc-step-'+i).style.display=i===ccData.step?'block':'none'}document.getElementById('cc-title').textContent='创建调查员 — 步骤 '+ccData.step+'/5';document.getElementById('cc-prev').disabled=ccData.step===1;document.getElementById('cc-next').textContent=ccData.step===5?'确认创建':'下一步 →';if(ccData.step===1)renderCcAttrs();if(ccData.step===2)renderCcOccupations();if(ccData.step===3)renderCcSkills();if(ccData.step===4)renderCcBackground();if(ccData.step===5)renderCcConfirm()}
-function ccNext(){if(ccData.step===5){submitCharacter();return}if(ccData.step===2&&!ccData.occupation){alert('请选择职业');return}ccData.step++;updateCcUI()}
+
+function updateCcUI(){
+    for(var i=1;i<=7;i++){document.getElementById('cc-step-'+i).style.display=i===ccData.step?'block':'none'}
+    document.getElementById('cc-title').textContent='创建调查员 — 步骤 '+ccData.step+'/7';
+    document.getElementById('cc-prev').disabled=ccData.step===1;
+    document.getElementById('cc-next').textContent=ccData.step===7?'确认创建':'下一步 →';
+    if(ccData.step===1)renderCcStep1();
+    if(ccData.step===2)renderCcStep2();
+    if(ccData.step===3)renderCcStep3();
+    if(ccData.step===4)renderCcStep4();
+    if(ccData.step===5)renderCcStep5();
+    if(ccData.step===6)renderCcStep6();
+    if(ccData.step===7)renderCcStep7();
+}
+
+function ccNext(){
+    if(ccData.step===7){submitCharacter();return}
+    if(ccData.step===1&&!ccData.era){alert('请选择时代');return}
+    if(ccData.step===1&&!ccData.method){alert('请选择创建方式');return}
+    if(ccData.step===2&&ccData.method==='roll'){
+        if(!ccData.attrs||!ccData.attrs.STR){alert('请先掷骰属性');return}
+    }
+    if(ccData.step===2&&ccData.method==='pointbuy'){
+        var used=0;
+        ['STR','CON','SIZ','DEX','APP','INT','POW','EDU'].forEach(function(a){used+=(ccData.attrs[a]||50)});
+        if(used!==460){alert('购点总和必须为460，当前:'+used);return}
+    }
+    if(ccData.step===2&&ccData.method==='quickstart'){
+        var attrs=['STR','CON','SIZ','DEX','APP','INT','POW','EDU'];
+        for(var i=0;i<attrs.length;i++){if(!ccData.attrs||!ccData.attrs[attrs[i]]){alert('请为所有属性分配值');return}}
+    }
+    if(ccData.step===4){
+        var used=0;
+        Object.keys(ccData.occSkills).forEach(function(k){used+=ccData.occSkills[k].pts||0});
+        if(used>ccData.occPointsLeft){alert('职业技能点超限! 剩余:'+(ccData.occPointsLeft-used));return}
+    }
+    if(ccData.step===5){
+        var usedI=0;
+        Object.keys(ccData.intSkills).forEach(function(k){usedI+=ccData.intSkills[k].pts||0});
+        if(usedI>ccData.intPointsLeft){alert('兴趣技能点超限! 剩余:'+(ccData.intPointsLeft-usedI));return}
+    }
+    if(ccData.step===6){
+        if(!ccData.background.name||ccData.background.name.trim()===''){alert('请填写调查员姓名');return}
+    }
+    ccData.step++;
+    updateCcUI();
+}
+
 function ccPrev(){if(ccData.step>1){ccData.step--;updateCcUI()}}
-function rollAttributes(){var r3=function(){return Math.floor(Math.random()*6)+Math.floor(Math.random()*6)+Math.floor(Math.random()*6)};var r2=function(){return Math.floor(Math.random()*6)+Math.floor(Math.random()*6)};ccData.attrs={STR:r3()*5,CON:r3()*5,SIZ:(r2()+6)*5,DEX:r3()*5,APP:r3()*5,INT:(r2()+6)*5,POW:r3()*5,EDU:(r2()+6)*5,LUK:r3()*5};renderCcAttrs()}
-function renderCcAttrs(){var h='';['STR','CON','SIZ','DEX','APP','INT','POW','EDU','LUK'].forEach(function(a){h+='<div class="cc-attr-row"><label>'+a+'</label><span>'+(ccData.attrs[a]||0)+'</span></div>'});document.getElementById('cc-attrs').innerHTML=h}
-function renderCcOccupations(){var h='';(ccOccupations||[]).forEach(function(o){h+='<div class="occ-card" onclick="selectOccupation(\''+o.code+'\')"><div class="occ-card-name">'+o.name+'</div><div class="occ-card-meta">信用 '+o.credit_range[0]+'–'+o.credit_range[1]+' · '+o.occupational_skills.length+' 项技能</div></div>'});document.getElementById('cc-occupations').innerHTML=h||'<p style="color:var(--text-dim);font-size:12px">加载中...</p>'}
-function selectOccupation(code){var o=(ccOccupations||[]).find(function(oc){return oc.code===code});if(!o)return;ccData.occupation=o;ccData.skills={};o.occupational_skills.forEach(function(s){ccData.skills[s]={base:1,occ:0,int:0}});ccData.occupationPoints=ccData.attrs.EDU*4;ccData.interestPoints=ccData.attrs.INT*2;document.querySelectorAll('.occ-card').forEach(function(c){c.style.borderColor=c.querySelector('.occ-card-name').textContent===o.name?'var(--border-gold)':'var(--border-dark)'})}
-function renderCcSkills(){if(!ccData.occupation)return;var h='<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px">职业点: <span id="occ-pts">'+ccData.occupationPoints+'</span> | 兴趣点: <span id="int-pts">'+ccData.interestPoints+'</span></div>';Object.keys(ccData.skills).forEach(function(s){var v=ccData.skills[s];h+='<div class="cc-skill-row"><label>'+s+' (基础'+(v.base||1)+')</label><div style="display:flex;gap:4px"><input type="number" min="0" value="'+(v.occ||0)+'" onchange="updateSkillPts(\''+s+'\',this.value,\'occ\')" placeholder="职业"><input type="number" min="0" value="'+(v.int||0)+'" onchange="updateSkillPts(\''+s+'\',this.value,\'int\')" placeholder="兴趣"></div></div>'});document.getElementById('cc-skill-alloc').innerHTML=h}
-function updateSkillPts(sk,val,type){var v=parseInt(val)||0;if(v<0)v=0;ccData.skills[sk][type]=v;var to=0,ti=0;Object.keys(ccData.skills).forEach(function(k){to+=ccData.skills[k].occ||0;ti+=ccData.skills[k].int||0});document.getElementById('occ-pts').textContent=ccData.occupationPoints-to;document.getElementById('int-pts').textContent=ccData.interestPoints-ti}
-function renderCcBackground(){var fs=[{k:'name',l:'姓名',ph:'调查员姓名'},{k:'age',l:'年龄',ph:'30'},{k:'residence',l:'居住地',ph:'波士顿'},{k:'personalDescription',l:'外貌',ph:''},{k:'ideology',l:'信仰',ph:''},{k:'significantPerson',l:'重要之人',ph:''},{k:'meaningfulLocation',l:'意义之地',ph:''},{k:'treasuredPossession',l:'珍视之物',ph:''},{k:'traits',l:'特质',ph:''},{k:'injuries',l:'伤痕',ph:''},{k:'phobias',l:'恐惧症',ph:''},{k:'backgroundStory',l:'背景故事',ph:''}];var h='';fs.forEach(function(f){h+='<div style="margin-bottom:8px"><label style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px">'+f.l+'</label><input style="width:100%;padding:6px;margin-top:2px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--r-sm);color:var(--text-parchment);font-size:12px" placeholder="'+f.ph+'" onchange="ccData.background[\''+f.k+'\']=this.value" value="'+(ccData.background[f.k]||'')+'"></div>'});document.getElementById('cc-background').innerHTML=h}
-function renderCcConfirm(){var a=ccData.attrs;var o=ccData.occupation||{};var h='<p style="color:var(--text-bright)"><b>'+(ccData.background.name||'无名调查员')+'</b> — '+o.name+'</p>';h+='<p style="font-size:11px;color:var(--text-dim);margin-top:6px">STR'+a.STR+' CON'+a.CON+' SIZ'+a.SIZ+' DEX'+a.DEX+' APP'+a.APP+' INT'+a.INT+' POW'+a.POW+' EDU'+a.EDU+' LUK'+a.LUK+'</p>';document.getElementById('cc-confirm').innerHTML=h}
-async function submitCharacter(){var a=ccData.attrs;var o=ccData.occupation||{};var id='char_'+Date.now();var payload={id:id,name:ccData.background.name||'无名调查员',occupation_name:o.name||'调查员',str:a.STR,con:a.CON,siz:a.SIZ,dex:a.DEX,app:a.APP,int_:a.INT,pow:a.POW,edu:a.EDU,luk:a.LUK,hp_max:Math.floor((a.CON+a.SIZ)/10),hp_current:Math.floor((a.CON+a.SIZ)/10),mp_max:Math.floor(a.POW/5),mp_current:Math.floor(a.POW/5),san_max:99,san_current:a.POW,san_start:a.POW,db:'0',build:0,mov:7,personal_description:ccData.background.personalDescription||'',ideology:ccData.background.ideology||'',significant_person:ccData.background.significantPerson||'',meaningful_location:ccData.background.meaningfulLocation||'',treasured_possession:ccData.background.treasuredPossession||'',traits:ccData.background.traits||'',injuries_scars:ccData.background.injuries||'',phobias_manias:ccData.background.phobias||'',background_story:ccData.background.backgroundStory||'',age:parseInt(ccData.background.age)||30};try{var r=await fetch(API+'/character',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!r.ok){alert('创建失败');return}var skillsArr=[];var baseSkills={'信用评级':0,'侦查':25,'聆听':20,'图书馆使用':20,'心理学':10,'潜行':20,'闪避':0,'格斗(斗殴)':25,'射击(手枪)':20,'急救':30,'驾驶(汽车)':20,'话术':5};Object.keys(ccData.skills).forEach(function(s){var b=baseSkills[s]||1;skillsArr.push({name:s,value:b+(ccData.skills[s].occ||0)+(ccData.skills[s].int||0)})});await fetch(API+'/character/'+id+'/skills',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skills:skillsArr})});charId=id;char={name:payload.name,occupation:payload.occupation_name,san:payload.san_current,sanMax:payload.san_max,hp:payload.hp_current,hpMax:payload.hp_max,mp:payload.mp_current,mpMax:payload.mp_max,STR:payload.str,CON:payload.con,SIZ:payload.siz,DEX:payload.dex,APP:payload.app,INT:payload.int_,POW:payload.pow,EDU:payload.edu,LUK:payload.luk,skills:{},equipment:['手电筒','笔记本','小刀']};skillsArr.forEach(function(s){char.skills[s.name]=s.value});closeCharCreator();enterGame()}catch(e){alert('创建失败: '+e.message)}}
-async function loadOccs(){try{var r=await fetch(API+'/occupations');var d=await r.json();ccOccupations=d.occupations||[]}catch(e){}}
-function talkToNPC(name,role){var input=document.getElementById('input-field');var msg='[正在与'+name+'('+role+')交谈]\n'+input.value;input.value='';addPlayerMsg(msg);sendToAI(msg)}
+
+// === STEP 1: Era & Method ===
+function renderCcStep1(){
+    var eras=['1920s','Modern','Gaslight'];
+    var eraNames={'1920s':'1920s 经典',Modern:'现代',Gaslight:'1890s 煤气灯'};
+    var h='';
+    eras.forEach(function(e){
+        h+='<button class="cc-era-btn'+(ccData.era===e?' active':'')+'" onclick="selectEra(\''+e+'\')">'+eraNames[e]+'</button>';
+    });
+    document.getElementById('cc-era-btns').innerHTML=h;
+    var methods=['roll','pointbuy','quickstart'];
+    var methodNames={roll:'掷骰',pointbuy:'购点 (460pts)',quickstart:'快速'};
+    h='';
+    methods.forEach(function(m){
+        h+='<button class="cc-method-btn'+(ccData.method===m?' active':'')+'" onclick="selectMethod(\''+m+'\')">'+methodNames[m]+'</button>';
+    });
+    document.getElementById('cc-method-btns').innerHTML=h;
+}
+
+function selectEra(era){ccData.era=era;renderCcStep1()}
+function selectMethod(method){ccData.method=method;renderCcStep1()}
+
+// === STEP 2: Attributes ===
+function renderCcStep2(){
+    var attrs=['STR','CON','SIZ','DEX','APP','INT','POW','EDU','LUK'];
+    if(!ccData.attrs||!ccData.attrs.STR){initAttrs();}
+    renderCcAttrs();
+    renderCcDerivedSidebar();
+    renderCcLukArea();
+    if(ccData.method==='roll')renderCcRollArea();
+    if(ccData.method==='pointbuy')renderCcPointBuyArea();
+    if(ccData.method==='quickstart')renderCcQuickStartArea();
+}
+
+function initAttrs(){
+    ccData.attrs={STR:50,CON:50,SIZ:50,DEX:50,APP:50,INT:50,POW:50,EDU:50,LUK:50};
+    ccData.luk=50;
+    if(ccData.method==='roll')rollAttributes();
+}
+
+function rollAttributes(){
+    var r3=function(){return Math.floor(Math.random()*6)+Math.floor(Math.random()*6)+Math.floor(Math.random()*6)};
+    var r2=function(){return Math.floor(Math.random()*6)+Math.floor(Math.random()*6)};
+    ccData.attrs={STR:r3()*5,CON:r3()*5,SIZ:(r2()+6)*5,DEX:r3()*5,APP:r3()*5,INT:(r2()+6)*5,POW:r3()*5,EDU:(r2()+6)*5,LUK:r3()*5};
+    ccData.luk=ccData.attrs.LUK;
+    renderCcStep2();
+}
+
+function rollSingleAttr(attr){
+    var r3=function(){return Math.floor(Math.random()*6)+Math.floor(Math.random()*6)+Math.floor(Math.random()*6)};
+    var v=r3()*5;
+    if(attr==='SIZ'||attr==='INT'||attr==='EDU'){v=(Math.floor(Math.random()*6)+Math.floor(Math.random()*6)+6)*5}
+    ccData.attrs[attr]=v;
+    if(attr==='LUK')ccData.luk=v;
+    renderCcAttrs();renderCcDerivedSidebar();
+}
+
+function renderCcAttrs(){
+    var attrs=['STR','CON','SIZ','DEX','APP','INT','POW','EDU','LUK'];
+    var h='';
+    attrs.forEach(function(a){
+        h+='<div class="cc-attr-item"><label>'+a+'</label><span>'+(ccData.attrs[a]||0)+'</span>';
+        if(ccData.method==='roll')h+='<button class="cc-attr-roll" onclick="rollSingleAttr(\''+a+'\')">重掷</button>';
+        if(ccData.method==='pointbuy'&&a!=='LUK')h+='<input class="cc-attr-input" type="number" min="15" max="90" value="'+(ccData.attrs[a]||50)+'" onchange="pbSliderUpdate(\''+a+'\',this.value)">';
+        h+='</div>';
+    });
+    document.getElementById('cc-attrs').innerHTML=h;
+}
+
+function renderCcDerivedSidebar(){
+    var d=computeDerived();
+    var h='<div style="grid-column:1/-1;text-align:center;font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">衍生属性</div>';
+    h+='<div>HP</div><span>'+(d.hp||0)+'</span>';
+    h+='<div>SAN</div><span>'+(d.san||0)+'</span>';
+    h+='<div>MP</div><span>'+(d.mp||0)+'</span>';
+    h+='<div>DB</div><span>'+(d.db||'0')+'</span>';
+    h+='<div>Build</div><span>'+(d.build||0)+'</span>';
+    h+='<div>MOV</div><span>'+(d.mov||7)+'</span>';
+    document.getElementById('cc-derived-sidebar').innerHTML=h;
+}
+
+function renderCcLukArea(){
+    document.getElementById('cc-luk-area').innerHTML='<div style="font-size:10px;color:var(--text-dim);margin-top:4px">LUK: 3d6×5 = '+(ccData.luk||50)+'</div>';
+}
+
+function renderCcRollArea(){
+    document.getElementById('cc-method-area').innerHTML='<button class="action-btn primary" onclick="rollAttributes()" style="width:100%;margin-top:8px">🎲 全部重掷</button>';
+}
+
+function renderCcPointBuyArea(){
+    var used=0;
+    ['STR','CON','SIZ','DEX','APP','INT','POW','EDU'].forEach(function(a){used+=(ccData.attrs[a]||50)});
+    var h='<div style="margin-top:8px"><div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">剩余: <span id="pb-remaining" style="color:var(--san-gold);font-weight:600">'+(460-used)+'</span>/460</div>';
+    ['STR','CON','SIZ','DEX','APP','INT','POW','EDU'].forEach(function(a){
+        h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><label style="font-size:10px;color:var(--text-dim);width:30px">'+a+'</label><input class="cc-attr-slider" type="range" min="15" max="90" value="'+(ccData.attrs[a]||50)+'" oninput="pbSliderChange(\''+a+'\',this.value)" id="cc-pb-slider-'+a+'"><span style="font-family:var(--font-mono);font-size:11px;color:var(--text-bright);width:24px;text-align:right">'+(ccData.attrs[a]||50)+'</span></div>';
+    });
+    h+='</div>';
+    document.getElementById('cc-method-area').innerHTML=h;
+}
+
+function pbSliderChange(attr,val){
+    var v=parseInt(val)||50;
+    if(v<15)v=15;if(v>90)v=90;
+    ccData.attrs[attr]=v;
+    var used=0;
+    ['STR','CON','SIZ','DEX','APP','INT','POW','EDU'].forEach(function(a){used+=(ccData.attrs[a]||50)});
+    var remaining=460-used;
+    var el=document.getElementById('pb-remaining');
+    if(el){el.textContent=remaining;el.style.color=remaining<0?'var(--hp-crimson)':'var(--san-gold)'}
+    if(remaining<0){ccData.attrs[attr]=v-Math.abs(remaining);renderCcPointBuyArea();return}
+    renderCcAttrs();
+    renderCcDerivedSidebar();
+}
+
+function pbSliderUpdate(attr,val){
+    var v=parseInt(val)||50;
+    if(v<15)v=15;if(v>90)v=90;
+    ccData.attrs[attr]=v;
+    renderCcPointBuyArea();
+    renderCcAttrs();
+    renderCcDerivedSidebar();
+}
+
+function renderCcQuickStartArea(){
+    var vals=[40,50,50,50,60,60,70,80];
+    var h='<div style="margin-top:8px"><div style="font-size:10px;color:var(--text-dim);margin-bottom:4px">点击数值 → 点击属性槽位</div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">';
+    vals.forEach(function(v){
+        h+='<button class="cc-qb-val'+(ccData.qbSelectedValue===v?' selected':'')+'" onclick="qbSelectValue('+v+')">'+v+'</button>';
+    });
+    h+='</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">';
+    var attrs=['STR','CON','SIZ','DEX','APP','INT','POW','EDU'];
+    attrs.forEach(function(a){
+        h+='<div class="cc-qb-slot'+(ccData.attrs[a]?' filled':'')+'" onclick="qbAssignAttr(\''+a+'\')">'+a+':'+(ccData.attrs[a]||'__')+'</div>';
+    });
+    h+='</div></div>';
+    document.getElementById('cc-method-area').innerHTML=h;
+}
+
+function qbSelectValue(v){ccData.qbSelectedValue=v;renderCcQuickStartArea()}
+function qbAssignAttr(attr){
+    if(!ccData.qbSelectedValue)return;
+    ccData.attrs[attr]=ccData.qbSelectedValue;
+    ccData.qbSelectedValue=null;
+    renderCcQuickStartArea();
+    renderCcAttrs();
+    renderCcDerivedSidebar();
+}
+
+// === STEP 3: Derived Stats & Age ===
+function renderCcStep3(){
+    var d=computeDerived();
+    var h='<div>HP</div><span>'+(d.hp||0)+'</span>';
+    h+='<div>SAN</div><span>'+(d.san||0)+'</span>';
+    h+='<div>MP</div><span>'+(d.mp||0)+'</span>';
+    h+='<div>DB</div><span>'+(d.db||'0')+'</span>';
+    h+='<div>Build</div><span>'+(d.build||0)+'</span>';
+    h+='<div>MOV</div><span>'+(d.mov||7)+'</span>';
+    h+='<div>Luck</div><span>'+ccData.luk+'</span>';
+    document.getElementById('cc-derived-full').innerHTML=h;
+    renderCcAgeArea();
+    renderCcCrArea();
+}
+
+function renderCcAgeArea(){
+    var age=ccData.age||30;
+    var mod='';
+    if(age<20)mod='EDU-5，当前可用EDU:'+(ccData.attrs.EDU-5);
+    else if(age>=40&&age<50)mod='EDU+5，APP-5，STR/CON/DEX-5，当前EDU:'+(ccData.attrs.EDU+5);
+    else if(age>=50&&age<60)mod='EDU+10，APP-10，STR/CON/DEX-10';
+    else if(age>=60&&age<70)mod='EDU+15，APP-15，STR/CON/DEX-15';
+    else if(age>=70&&age<80)mod='EDU+20，APP-20，STR/CON/DEX-20';
+    else if(age>=80)mod='EDU+25，APP-25，STR/CON/DEX-25';
+    var h='<div class="cc-age-row"><label>年龄</label><input class="cc-attr-slider" type="range" min="15" max="90" value="'+age+'" oninput="ccAgeChange(this.value)" id="cc-age-slider"><span>'+age+'</span></div>';
+    if(mod)h+='<div style="font-size:10px;color:var(--text-dim);margin-top:2px">'+mod+'</div>';
+    document.getElementById('cc-age-area').innerHTML=h;
+}
+
+function ccAgeChange(v){
+    ccData.age=parseInt(v)||30;
+    renderCcAgeArea();
+    renderCcCrArea();
+}
+
+function renderCcCrArea(){
+    if(!ccData.occupation){document.getElementById('cc-cr-area').style.display='none';return}
+    document.getElementById('cc-cr-area').style.display='block';
+    var o=ccData.occupation;
+    var crMin=o.credit_range?o.credit_range[0]:0;
+    var crMax=o.credit_range?o.credit_range[1]:99;
+    var cr=ccData.creditRating||crMin;
+    if(cr<crMin)cr=crMin;if(cr>crMax)cr=crMax;
+    var h='<div class="cc-age-row"><label>信用评级</label><input class="cc-attr-slider" type="range" min="'+crMin+'" max="'+crMax+'" value="'+cr+'" oninput="ccCrChange(this.value)"><span>'+cr+'</span></div>';
+    h+='<div style="font-size:10px;color:var(--text-dim)">职业范围: '+crMin+'–'+crMax+'</div>';
+    document.getElementById('cc-cr-area').innerHTML=h;
+}
+
+function ccCrChange(v){ccData.creditRating=parseInt(v)||0;renderCcCrArea()}
+
+// === STEP 4: Occupation & Occ Skills ===
+function renderCcStep4(){
+    renderCcOccGrid();
+    renderCcOccSkills();
+}
+
+function renderCcOccGrid(){
+    if(!ccOccupations||ccOccupations.length===0){
+        document.getElementById('cc-occ-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-size:12px;padding:12px">加载职业列表...</div>';
+        loadOccs();
+        return;
+    }
+    var h='';
+    ccOccupations.forEach(function(o){
+        var active=ccData.occupation&&ccData.occupation.code===o.code;
+        h+='<div class="occ-card'+(active?' style="border-color:var(--border-gold)"':'')+'" onclick="selectOccupation(\''+o.code+'\')"><div class="occ-card-name">'+o.name+'</div><div class="occ-card-meta">信用 '+o.credit_range[0]+'–'+o.credit_range[1]+' · '+o.occupational_skills.length+' 项</div></div>';
+    });
+    document.getElementById('cc-occ-grid').innerHTML=h;
+}
+
+function selectOccupation(code){
+    var o=(ccOccupations||[]).find(function(oc){return oc.code===code});
+    if(!o)return;
+    ccData.occupation=o;
+    ccData.creditRating=o.credit_range?o.credit_range[0]:0;
+    ccData.occSkills={};
+    ccData.occPointsLeft=ccData.attrs.EDU*4;
+    ccData.intPointsLeft=ccData.attrs.INT*2;
+    o.occupational_skills.forEach(function(s){
+        var base=getSkillBase(s);
+        ccData.occSkills[s]={base:base,pts:0};
+    });
+    renderCcOccGrid();
+    renderCcOccSkills();
+    if(ccData.step===3)renderCcCrArea();
+}
+
+function getSkillBase(skillName){
+    for(var cat in ccSkillCategories){
+        var skills=ccSkillCategories[cat];
+        for(var i=0;i<skills.length;i++){
+            if(skills[i].n===skillName){
+                if(skills[i].b===-1)return Math.floor(ccData.attrs.DEX/2);
+                return skills[i].b;
+            }
+        }
+    }
+    return 1;
+}
+
+function renderCcOccSkills(){
+    if(!ccData.occupation){document.getElementById('cc-occ-skill-area').innerHTML='';return}
+    var used=0;
+    Object.keys(ccData.occSkills).forEach(function(k){used+=ccData.occSkills[k].pts||0});
+    var remaining=ccData.occPointsLeft-used;
+    var h='';
+    Object.keys(ccData.occSkills).forEach(function(s){
+        var v=ccData.occSkills[s];
+        h+='<div class="cc-attr-item"><label>'+s+' ('+(v.base||1)+')</label><span>'+(v.base+(v.pts||0))+'%</span><div style="display:flex;gap:4px"><button class="cc-attr-roll" onclick="decOccSkill(\''+s.replace(/'/g,"\\'")+'\')">-</button><button class="cc-attr-roll" style="color:var(--success)" onclick="incOccSkill(\''+s.replace(/'/g,"\\'")+'\')">+</button></div></div>';
+    });
+    document.getElementById('cc-occ-skill-area').innerHTML=h;
+    document.getElementById('cc-occ-pts').textContent=remaining;
+}
+
+function incOccSkill(sk){
+    var used=0;
+    Object.keys(ccData.occSkills).forEach(function(k){used+=ccData.occSkills[k].pts||0});
+    if(used>=ccData.occPointsLeft)return;
+    if(!ccData.occSkills[sk])ccData.occSkills[sk]={base:getSkillBase(sk),pts:0};
+    ccData.occSkills[sk].pts=(ccData.occSkills[sk].pts||0)+1;
+    renderCcOccSkills();
+}
+
+function decOccSkill(sk){
+    if(!ccData.occSkills[sk])return;
+    ccData.occSkills[sk].pts=Math.max(0,(ccData.occSkills[sk].pts||0)-1);
+    renderCcOccSkills();
+}
+
+// === STEP 5: Interest Skills ===
+function renderCcStep5(){
+    renderCcSkillCatTabs();
+    applyCcSkillFilter();
+    var used=0;
+    Object.keys(ccData.intSkills).forEach(function(k){used+=ccData.intSkills[k].pts||0});
+    var remaining=ccData.intPointsLeft-used;
+    document.getElementById('cc-int-pts').textContent=remaining;
+}
+
+function renderCcSkillCatTabs(){
+    var cats=['所有','社交','战斗','知识','操作','生存'];
+    var h='';
+    cats.forEach(function(c){
+        var k=c==='所有'?'all':c;
+        h+='<button class="cc-skill-cat-tab'+(ccData.ccActiveCatTab===k?' active':'')+'" onclick="setCcSkillCatTab(\''+k+'\')">'+c+'</button>';
+    });
+    document.getElementById('cc-skill-cat-tabs').innerHTML=h;
+}
+
+function setCcSkillCatTab(tab){ccData.ccActiveCatTab=tab;renderCcStep5()}
+
+function applyCcSkillFilter(){
+    var filter=(document.getElementById('cc-skill-filter')||{}).value||'';
+    var filterLower=filter.toLowerCase();
+    var allSkills=[];
+    for(var cat in ccSkillCategories){
+        var skills=ccSkillCategories[cat];
+        skills.forEach(function(s){
+            if(ccData.ccActiveCatTab&&ccData.ccActiveCatTab!=='all'&&cat!==ccData.ccActiveCatTab)return;
+            var v=ccData.intSkills[s.n]||{base:s.b,pts:0};
+            if(v.base===-1)v.base=Math.floor(ccData.attrs.DEX/2);
+            var current=v.base+(v.pts||0);
+            var info={category:cat,n:s.n,base:v.base,pts:v.pts||0,val:current};
+            if(!filterLower||s.n.toLowerCase().indexOf(filterLower)>=0)allSkills.push(info);
+        });
+    }
+    var used=0;
+    Object.keys(ccData.intSkills).forEach(function(k){used+=ccData.intSkills[k].pts||0});
+    var remaining=ccData.intPointsLeft-used;
+    var h='';
+    allSkills.forEach(function(s){
+        h+='<div class="cc-attr-item"><label>'+s.n+' ('+s.base+')</label><span>'+s.val+'%</span><div style="display:flex;gap:4px"><button class="cc-attr-roll" onclick="decIntSkill(\''+s.n.replace(/'/g,"\\'")+'\')">-</button><button class="cc-attr-roll" style="color:var(--success)" onclick="incIntSkill(\''+s.n.replace(/'/g,"\\'")+'\')">+</button></div></div>';
+    });
+    document.getElementById('cc-int-skill-area').innerHTML=h;
+    document.getElementById('cc-int-pts').textContent=remaining;
+}
+
+function incIntSkill(sk){
+    var used=0;
+    Object.keys(ccData.intSkills).forEach(function(k){used+=ccData.intSkills[k].pts||0});
+    if(used>=ccData.intPointsLeft)return;
+    if(!ccData.intSkills[sk])ccData.intSkills[sk]={base:getSkillBase(sk),pts:0};
+    ccData.intSkills[sk].pts=(ccData.intSkills[sk].pts||0)+1;
+    applyCcSkillFilter();
+}
+
+function decIntSkill(sk){
+    if(!ccData.intSkills[sk])return;
+    ccData.intSkills[sk].pts=Math.max(0,(ccData.intSkills[sk].pts||0)-1);
+    applyCcSkillFilter();
+}
+
+// === STEP 6: Background ===
+function renderCcStep6(){
+    var fields=[
+        {k:'name',l:'姓名',ph:'调查员姓名'},
+        {k:'age',l:'年龄',ph:'30',val:ccData.age||30},
+        {k:'sex',l:'性别',ph:'M/F/O'},
+        {k:'residence',l:'居住地',ph:'波士顿'},
+        {k:'birthplace',l:'出生地',ph:''},
+        {k:'personalDescription',l:'个人描述',ph:'外貌、特征等'},
+        {k:'ideology',l:'信念',ph:'政治或宗教信仰'},
+        {k:'significantPerson',l:'重要之人',ph:'对你影响深远的人'},
+        {k:'meaningfulLocation',l:'意义非凡之地',ph:'有特殊意义的地方'},
+        {k:'treasuredPossession',l:'宝贵之物',ph:'你最珍视的物品'},
+        {k:'traits',l:'特点',ph:'性格特征'},
+        {k:'injuries',l:'伤口/疤痕',ph:''},
+        {k:'phobias',l:'恐惧症/躁狂症',ph:''},
+        {k:'backgroundStory',l:'调查员经历',ph:'你的故事'},
+        {k:'keyConnection',l:'关键联系',ph:'重要的社会关系'}
+    ];
+    var h='';
+    fields.forEach(function(f){
+        if(f.val!==undefined)ccData.background[f.k]=String(f.val);
+        h+='<div style="margin-bottom:8px"><label style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px">'+f.l+'</label>';
+        if(f.k==='personalDescription'||f.k==='ideology'||f.k==='significantPerson'||f.k==='meaningfulLocation'||f.k==='treasuredPossession'||f.k==='traits'||f.k==='injuries'||f.k==='phobias'||f.k==='backgroundStory'||f.k==='keyConnection'){
+            h+='<textarea style="width:100%;padding:6px;margin-top:2px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--r-sm);color:var(--text-parchment);font-size:12px;resize:vertical;min-height:50px" onchange="ccData.background[\''+f.k+'\']=this.value">'+(ccData.background[f.k]||'')+'</textarea>';
+        }else{
+            h+='<input style="width:100%;padding:6px;margin-top:2px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--r-sm);color:var(--text-parchment);font-size:12px" placeholder="'+f.ph+'" onchange="ccData.background[\''+f.k+'\']=this.value" value="'+(ccData.background[f.k]||'')+'">';
+        }
+        h+='</div>';
+    });
+    document.getElementById('cc-bg-area').innerHTML=h;
+}
+
+// === STEP 7: Equipment & Confirm ===
+function renderCcStep7(){
+    renderCcCashArea();
+    renderCcEquipArea();
+    renderCcWeaponArea();
+    renderCcPreview();
+}
+
+function getCreditTier(cr){
+    if(cr===0)return 0;
+    if(cr>=1&&cr<=9)return '1-9';
+    if(cr>=10&&cr<=29)return '10-29';
+    if(cr>=30&&cr<=49)return '30-49';
+    if(cr>=50&&cr<=69)return '50-69';
+    if(cr>=70&&cr<=89)return '70-89';
+    return '90+';
+}
+
+function renderCcCashArea(){
+    var cr=ccData.creditRating||0;
+    var tier=getCreditTier(cr);
+    var t=ccCreditTable[tier];
+    var h='<div style="font-size:11px;color:var(--text-parchment)">信用评级: '+cr+'</div>';
+    h+='<div style="font-size:10px;color:var(--text-dim)">每日消费: $'+t.cash+' | 资产: $'+t.assets+'</div>';
+    document.getElementById('cc-cash-area').innerHTML=h;
+}
+
+function renderCcEquipArea(){
+    var h='';
+    ccEquipmentOpts.forEach(function(e){
+        var checked=ccData.equipment.indexOf(e)>=0;
+        h+='<label class="cc-equip-item"><input type="checkbox"'+(checked?' checked':'')+' onchange="toggleEquipment(\''+e+'\',this.checked)">'+e+'</label>';
+    });
+    document.getElementById('cc-equip-area').innerHTML=h;
+}
+
+function toggleEquipment(name,checked){
+    if(checked){
+        if(ccData.equipment.indexOf(name)<0)ccData.equipment.push(name);
+    }else{
+        ccData.equipment=ccData.equipment.filter(function(x){return x!==name});
+    }
+}
+
+function renderCcWeaponArea(){
+    var h='<div style="display:flex;gap:4px;flex-wrap:wrap">';
+    ccWeapons.forEach(function(w){
+        var sel=ccData.weapon&&ccData.weapon.n===w.n;
+        h+='<div class="cc-weapon-opt'+(sel?' selected':'')+'" onclick="selectWeapon(\''+w.n+'\')">'+w.n+' <span style="font-family:var(--font-mono);font-size:9px;color:var(--san-gold-dim)">'+w.d+'</span></div>';
+    });
+    h+='</div>';
+    document.getElementById('cc-weapon-area').innerHTML=h;
+}
+
+function selectWeapon(name){
+    var w=ccWeapons.find(function(x){return x.n===name});
+    ccData.weapon=w||null;
+    renderCcWeaponArea();
+}
+
+function renderCcPreview(){
+    var bg=ccData.background||{};
+    var o=ccData.occupation||{};
+    var d=computeDerived();
+    var h='<h4>'+(bg.name||'无名调查员')+'</h4>';
+    h+='<div class="meta">'+(o.name||'无职业')+' · 年龄 '+ccData.age+'</div>';
+    if(d.hp)h+='<div style="font-size:11px;margin-bottom:4px">HP '+d.hp+' · SAN '+d.san+' · MP '+d.mp+' · DB '+d.db+' · MOV '+d.mov+'</div>';
+    var allSkills={};
+    Object.keys(ccData.occSkills).forEach(function(k){var v=ccData.occSkills[k];allSkills[k]=v.base+(v.pts||0)});
+    Object.keys(ccData.intSkills).forEach(function(k){var v=ccData.intSkills[k];allSkills[k]=v.base+(v.pts||0)});
+    var sorted=Object.keys(allSkills).map(function(k){return{n:k,v:allSkills[k]}}).sort(function(a,b){return b.v-a.v}).slice(0,5);
+    h+='<div class="skills">核心技能: '+sorted.map(function(s){return s.n+' '+s.v+'%'}).join(' · ')+'</div>';
+    document.getElementById('cc-preview').innerHTML=h;
+}
+
+// === Submit ===
+async function submitCharacter(){
+    var bg=ccData.background||{};
+    var a=ccData.attrs;
+    if(!a||!a.STR){alert('属性未设置');return}
+    var o=ccData.occupation||{};
+    var d=computeDerived();
+    var id='char_'+Date.now();
+    var payload={
+        id:id,
+        name:bg.name||'无名调查员',
+        occupation_name:o.name||'调查员',
+        str:a.STR,con:a.CON,siz:a.SIZ,dex:a.DEX,app:a.APP,int_:a.INT,pow:a.POW,edu:a.EDU,luk:a.LUK,
+        hp_max:d.hp,hp_current:d.hp,mp_max:d.mp,mp_current:d.mp,
+        san_max:99,san_current:d.san,san_start:d.san,
+        db:d.db,build:d.build,mov:d.mov,
+        credit_rating:ccData.creditRating||0,
+        age:parseInt(bg.age)||ccData.age||30,sex:bg.sex||'',birthplace:bg.birthplace||'',
+        cash:0,assets:0,
+        personal_description:bg.personalDescription||'',
+        ideology:bg.ideology||'',
+        significant_person:bg.significantPerson||'',
+        meaningful_location:bg.meaningfulLocation||'',
+        treasured_possession:bg.treasuredPossession||'',
+        traits:bg.traits||'',
+        injuries_scars:bg.injuries||'',
+        phobias_manias:bg.phobias||'',
+        background_story:bg.backgroundStory||'',
+        key_connection:bg.keyConnection||''
+    };
+    try{
+        var r=await fetch(API+'/character',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        if(!r.ok){var err=await r.json();alert('创建失败: '+(err.error||'未知错误'));return}
+        var skillsArr=[];
+        Object.keys(ccData.occSkills).forEach(function(s){
+            var v=ccData.occSkills[s];
+            skillsArr.push({name:s,value:v.base+(v.pts||0)});
+        });
+        Object.keys(ccData.intSkills).forEach(function(s){
+            var v=ccData.intSkills[s];
+            var found=skillsArr.find(function(x){return x.name===s});
+            if(found){found.value+=v.pts||0}else{skillsArr.push({name:s,value:v.base+(v.pts||0)})}
+        });
+        if(skillsArr.length>0)await fetch(API+'/character/'+id+'/skills',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skills:skillsArr})});
+        if(ccData.equipment&&ccData.equipment.length>0){
+            var equipItems=ccData.equipment.map(function(name){return{name:name,quantity:1}});
+            if(ccData.weapon)equipItems.push({name:ccData.weapon.n+' ('+ccData.weapon.d+')',quantity:1});
+            await fetch(API+'/character/'+id+'/equipment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:equipItems})});
+        }
+        charId=id;
+        char={name:payload.name,occupation:payload.occupation_name,san:payload.san_current,sanMax:payload.san_max,hp:payload.hp_current,hpMax:payload.hp_max,mp:payload.mp_current,mpMax:payload.mp_max,STR:payload.str,CON:payload.con,SIZ:payload.siz,DEX:payload.dex,APP:payload.app,INT:payload.int_,POW:payload.pow,EDU:payload.edu,LUK:payload.luk,skills:{},equipment:ccData.equipment.slice()};
+        skillsArr.forEach(function(s){char.skills[s.name]=s.value});
+        closeCharCreator();
+        enterGame();
+    }catch(e){alert('创建失败: '+e.message)}
+}
+async function loadOccs(){try{var r=await fetch(API+'/occupations');var d=await r.json();ccOccupations=d.occupations||[]}catch(e){console.error(e)}}
+function talkToNPC(name,role){var input=document.getElementById('input-field');var text=input.value.trim()||('与'+name+'交谈');input.value='';addPlayerMsg('[与'+name+'对话]: '+text);sendToAI('[正在与'+name+'('+role+')交谈]\n'+text)}
 function damagePlayer(amount){char.hp=Math.max(0,char.hp-amount);updateVitals();persistHP();addSystemMsg('你受到 '+amount+' 点伤害 (剩余HP: '+char.hp+')');renderCombatants()}
-async function dodgePlayer(){var dodgeVal=(char.skills&&char.skills['闪避'])||27;try{var r=await fetch(API+'/roll/skill-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skillName:'闪避',skillValue:dodgeVal})});var d=await r.json();addDiceResult(d,'闪避');if(d.success){addSystemMsg('✅ 闪避成功!')}else{addSystemMsg('❌ 闪避失败!')}}catch(e){}}
-async function parryPlayer(){var fightVal=(char.skills&&char.skills['格斗(斗殴)'])||50;try{var r=await fetch(API+'/roll/skill-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skillName:'格斗(斗殴)',skillValue:fightVal})});var d=await r.json();addDiceResult(d,'格挡');if(d.success){addSystemMsg('✅ 格挡成功!')}else{addSystemMsg('❌ 格挡失败!')}}catch(e){}}
-function saveGame(){var saveData={sceneId:localStorage.getItem('_coc_scene')||'intro',charId:charId,timestamp:new Date().toISOString(),charName:char.name};localStorage.setItem('st-coc-save',JSON.stringify(saveData));addSystemMsg('💾 进度已保存')}
-function loadGame(saveData){charId=saveData.charId;initCharacter().then(function(){updateVitals();buildSkillGrid();loadScene();setInterval(loadScene,5000);if(window.pollClues)setInterval(pollClues,10000);addSystemMsg('📂 继续冒险 — '+saveData.charName)});enterGame();}
-function updatePartySelect(){var sel=document.getElementById('party-select');var ids=Object.keys(partyChars);if(ids.length<=1){sel.style.display='none';return}sel.style.display='block';sel.innerHTML=ids.map(function(id){var c=partyChars[id];return '<option value="'+id+'"'+(id===activeCharId?' selected':'')+'>'+c.name+'</option>'}).join('')}
+async function dodgePlayer(){var dodgeVal=(char.skills&&char.skills['闪避'])||27;try{var r=await fetch(API+'/roll/skill-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skillName:'闪避',skillValue:dodgeVal})});var d=await r.json();addDiceResult(d,'闪避');if(d.success){addSystemMsg('✅ 闪避成功!')}else{addSystemMsg('❌ 闪避失败!')}}catch(e){console.error(e)}}
+async function parryPlayer(){var fightVal=(char.skills&&char.skills['格斗(斗殴)'])||50;try{var r=await fetch(API+'/roll/skill-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skillName:'格斗(斗殴)',skillValue:fightVal})});var d=await r.json();addDiceResult(d,'格挡');if(d.success){addSystemMsg('✅ 格挡成功!')}else{addSystemMsg('❌ 格挡失败!')}}catch(e){console.error(e)}}
+function saveGame(){var name=document.getElementById('save-name-input');var defName='存档 '+new Date().toLocaleString();var saveName=(name&&name.value.trim())||defName;var payload={name:saveName,charId:charId,charName:char.name,hp:char.hp,hpMax:char.hpMax,san:char.san,sanMax:char.sanMax,mp:char.mp,mpMax:char.mpMax,sceneId:localStorage.getItem('_coc_scene')||'intro',sceneName:document.getElementById('scene-name')?document.getElementById('scene-name').textContent:'unknown'};fetch(API+'/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){return r.json()}).then(function(d){if(d.error){addSystemMsg('❌ 保存失败: '+d.error);return}addSystemMsg('💾 已保存: '+d.name);document.getElementById('save-dlg').classList.remove('show');localStorage.setItem('st-coc-save',JSON.stringify(payload))}).catch(function(e){addSystemMsg('❌ 保存失败')})}
+var autoSaveInterval=null;function startAutoSave(){if(autoSaveInterval)return;autoSaveInterval=setInterval(function(){var payload={name:'auto',charId:charId,charName:char.name,hp:char.hp,hpMax:char.hpMax,san:char.san,sanMax:char.sanMax,mp:char.mp,mpMax:char.mpMax,sceneId:localStorage.getItem('_coc_scene')||'intro',sceneName:document.getElementById('scene-name')?document.getElementById('scene-name').textContent:'unknown'};fetch(API+'/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(function(){})},300000)}
+function openSaveManager(mode){document.getElementById('save-dlg').classList.add('show');loadSaveList(mode)}
+function loadSaveList(mode){var list=document.getElementById('save-list');list.innerHTML='<div style="color:var(--text-dim);font-size:12px;text-align:center;padding:var(--sp-3)">加载中...</div>';fetch(API+'/save/list').then(function(r){return r.json()}).then(function(d){var saves=d.saves||[];if(saves.length===0){list.innerHTML='<div style="color:var(--text-dim);font-size:12px;text-align:center;padding:var(--sp-4)">暂无存档</div>';return}var h='';saves.forEach(function(s){var d=new Date(s.created);var ds=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');h+='<div class="save-item"><div class="save-info"><div class="save-name">'+s.name+'</div><div class="save-meta">'+s.charName+' · '+s.sceneName+' · '+ds+' · HP:'+s.hp+'/'+s.hpMax+' SAN:'+s.san+'/'+s.sanMax+'</div></div><div class="save-actions"><button class="save-btn-sm" onclick="loadSaveById(\''+s.id+'\')">加载</button><button class="save-btn-sm danger" onclick="deleteSave(\''+s.id+'\')">删除</button></div></div>'});list.innerHTML=h}).catch(function(e){list.innerHTML='<div style="color:var(--text-dim);font-size:12px;text-align:center;padding:var(--sp-3)">加载失败</div>'})}
+function createSave(){saveGame();setTimeout(function(){loadSaveList()},500)}
+function loadSaveById(id){fetch(API+'/save/'+id).then(function(r){return r.json()}).then(function(d){if(d.error){addSystemMsg('❌ 加载失败: '+d.error);return}document.getElementById('save-dlg').classList.remove('show');loadGame(d)}).catch(function(e){addSystemMsg('❌ 加载失败')})}
+function deleteSave(id){if(!confirm('确定删除此存档？'))return;fetch(API+'/save/'+id,{method:'DELETE'}).then(function(r){return r.json()}).then(function(){loadSaveList();addSystemMsg('🗑️ 存档已删除')}).catch(function(e){addSystemMsg('❌ 删除失败')})}
+function loadGame(saveData){charId=saveData.charId;document.querySelector('.game-container').classList.add('active');document.getElementById('title-screen').style.display='none';document.getElementById('module-selector').style.display='none';document.getElementById('char-selector').style.display='none';loadModules();initCharacter().then(function(){party=[{id:charId,name:char.name,charData:char,control:'player',aiModel:null,aiApiKey:null,aiBaseUrl:null,aiPersonality:null}];updateVitals();renderParty();loadScene();startAutoSave();setInterval(loadScene,5000);if(window.pollClues)setInterval(pollClues,10000);addSystemMsg('📂 继续冒险 — '+(saveData.charName||''));sendToAI('游戏继续。请以守秘人身份，用沉浸式的语言介绍当前场景。描述环境、氛围、在场的NPC。不要提供行动选项——等待调查员自行决定行动。')})}
+function continueGame(){var save=localStorage.getItem('st-coc-save');document.getElementById('char-selector').style.display='none';document.getElementById('module-selector').style.display='none';openSaveManager('load')}
 function toggleSidebar(){var sb=document.querySelector('.sidebar');sb.classList.toggle('show')}
+var stImportData=null;
+function processInput(text){var raMatch=text.match(/^\.ra\s+(.+)/i);if(raMatch){rollSkillByName(raMatch[1]);return true}var rcMatch=text.match(/^\.rc\s+(.+)/i);if(rcMatch){rollCheckByName(rcMatch[1]);return true}var rMatch=text.match(/^\.r\s+(.+)/i);if(rMatch){rollDiceFormula(rMatch[1]);return true}var qMatch=text.match(/^\.rd$/i);if(qMatch){rollD100();return true}return false}
+function rollSkillByName(skillName){var sk=char.skills||{};var val=null;for(var k in sk){if(k.indexOf(skillName)>=0){val=sk[k];skillName=k;break}}if(!val){addSystemMsg('❌ 未找到技能: '+skillName);return}rollSkill(skillName,val)}
+function rollCheckByName(attrName){var attrs={'力量':'STR','体质':'CON','体型':'SIZ','敏捷':'DEX','外貌':'APP','智力':'INT','意志':'POW','教育':'EDU','幸运':'LUK'};var key=attrs[attrName]||attrName.toUpperCase();var val=char[key];if(!val){addSystemMsg('❌ 未找到属性: '+attrName);return}rollSkill(key,val)}
+function rollDiceFormula(formula){var match=formula.match(/^(\d+)d(\d+)$/i);if(!match){addSystemMsg('❌ 无效骰子公式: '+formula);return}var n=parseInt(match[1]);var s=parseInt(match[2]);var total=0;var rolls=[];for(var i=0;i<n;i++){var r=Math.floor(Math.random()*s)+1;rolls.push(r);total+=r}if(n===1&&s===100){addDiceResult({skillName:'D100',roll:total,skillValue:100,success:true,level:'regular'},'掷骰')}else{addSystemMsg('🎲 '+formula+': ['+rolls.join(', ')+'] = '+total)}}
+function quickRoll1D6(){var r=Math.floor(Math.random()*6)+1;addSystemMsg('🎲 1D6: '+r)}
+function quickRoll1D3(){var r=Math.floor(Math.random()*3)+1;addSystemMsg('🎲 1D3: '+r)}
+function openStImport(){document.getElementById('st-import-dlg').classList.add('show');resetStImport()}
+function resetStImport(){stImportData=null;document.getElementById('st-preview').innerHTML='';document.getElementById('st-import-actions').style.display='none';document.getElementById('st-import-area').style.borderColor='var(--border-dark)'}
+function handleStFile(event){var f=event.target.files[0];if(!f)return;readStFile(f)}
+function handleStDrop(event){event.preventDefault();var f=event.dataTransfer.files[0];if(!f)return;readStFile(f)}
+function readStFile(file){var reader=new FileReader();reader.onload=function(){var data=reader.result;if(file.name.endsWith('.json')){processStData(data)}else{processStData(btoa(data))}};if(file.name.endsWith('.json')){reader.readAsText(file)}else{reader.readAsBinaryString(file)}}
+async function processStData(data){try{var r=await fetch(API+'/import/st-card',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:data})});var card=await r.json();if(card.error){alert('解析失败: '+card.error);return}stImportData=card;document.getElementById('st-preview').innerHTML='<div style="background:var(--bg-surface);border:1px solid var(--border-gold);border-radius:var(--r-md);padding:12px;margin-top:8px"><div style="font-size:14px;color:var(--san-gold)">'+(card.name||'无名角色')+'</div><div style="font-size:11px;color:var(--text-dim);margin-top:4px">'+(card.description||'无描述').substring(0,100)+'</div></div>';document.getElementById('st-import-area').style.borderColor='var(--border-gold)';document.getElementById('st-import-actions').style.display='block'}catch(e){alert('导入失败')}}
+async function confirmStImport(){if(!stImportData)return;var type=document.getElementById('st-import-type').value;var id='imported_'+Date.now();var coc=stImportData.cocData||{};var payload={id:id,name:stImportData.name||'未知角色',occupation_name:coc.occupation||'未知',str:coc.STR||50,con:coc.CON||50,siz:coc.SIZ||50,dex:coc.DEX||50,app:coc.APP||50,int_:coc.INT||50,pow:coc.POW||50,edu:coc.EDU||50,luk:coc.LUK||50,hp_max:coc.hpMax||10,hp_current:coc.hp||10,mp_max:coc.mpMax||10,mp_current:coc.mp||10,san_max:99,san_current:coc.SAN||coc.POW||50,san_start:coc.SAN||coc.POW||50,personal_description:stImportData.description||'',background_story:stImportData.scenario||''};try{var r=await fetch(API+'/character',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!r.ok){alert('创建角色失败');return}if(type==='ai-pc'){var member={id:id,name:stImportData.name,charData:dbToLocal(payload),control:'ai',aiModel:'deepseek-v4-pro',aiApiKey:null,aiBaseUrl:null,aiPersonality:stImportData.personality||stImportData.systemPrompt||''};party.push(member);addSystemMsg('🤖 '+stImportData.name+' 已添加为 AI 托管角色')}else{var member={id:id,name:stImportData.name,charData:dbToLocal(payload),control:'player',aiModel:null,aiApiKey:null,aiBaseUrl:null,aiPersonality:null};party.push(member);addSystemMsg('👤 '+stImportData.name+' 已添加为玩家角色')}renderParty();document.getElementById('st-import-dlg').classList.remove('show');resetStImport()}catch(e){alert('导入失败')}}
+function openModuleManager(){document.getElementById('module-dlg').classList.add('show');loadModuleList()}
+function loadModuleList(){var list=document.getElementById('module-list');list.innerHTML='<div style="color:var(--text-dim);text-align:center;padding:var(--sp-3)">加载中...</div>';fetch(API+'/module/list').then(function(r){return r.json()}).then(function(d){var mods=d.modules||[];if(mods.length===0){list.innerHTML='<div style="color:var(--text-dim);text-align:center;padding:var(--sp-4)">暂无导入的模组</div>';return}var h='';mods.forEach(function(m){h+='<div class="save-item"><div class="save-info"><div class="save-name">'+m.name+'</div><div class="save-meta">'+(m.era||'')+' · '+(m.difficulty||'')+' · '+(m.author||'')+'</div></div><div class="save-actions"><button class="save-btn-sm" onclick="selectModuleForGame(\''+m.id+'\')">选择</button><button class="save-btn-sm danger" onclick="deleteModule(\''+m.id+'\')">删除</button></div></div>'});list.innerHTML=h}).catch(function(){list.innerHTML='<div style="color:var(--text-dim);text-align:center">加载失败</div>'})}
+function deleteModule(id){if(!confirm('确定删除此模组？'))return;fetch(API+'/module/'+id,{method:'DELETE'}).then(function(r){return r.json()}).then(function(){loadModuleList();addSystemMsg('模组已删除')}).catch(function(){})}
+function openModuleImport(){var json=prompt('粘贴模组 JSON (或输入 "demo" 导入示例模组):');if(!json)return;var data;if(json==='demo'){data={meta:{name:'示例模组',era:'1920s',author:'ST-CoC',difficulty:'简单',description:'一个示例模组用于测试'},background:{premise:'这是一个测试模组'},npcs:[],locations:[]}}else{try{data=JSON.parse(json)}catch(e){alert('JSON 格式错误');return}}fetch(API+'/module/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json()}).then(function(d){if(d.error){alert('导入失败: '+d.error);return}addSystemMsg('模组已导入: '+d.name);loadModuleList()}).catch(function(){alert('导入失败')})}
+function selectModuleForGame(id){document.getElementById('module-dlg').classList.remove('show');addSystemMsg('已加载模组 (ID:'+id+')，将用于新游戏');localStorage.setItem('_coc_selected_module',id)}
 loadOccs();
 loadSettings();
 showTitleScreen();
