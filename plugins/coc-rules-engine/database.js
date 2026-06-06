@@ -37,6 +37,12 @@ function initDB() {
     db.pragma('journal_mode = WAL'); // better concurrent read performance
     db.pragma('foreign_keys = ON');
 
+    // Migration: add columns that may be missing from older databases
+    var migrations = ['age', 'sex', 'birthplace', 'key_connection', 'cash', 'assets'];
+    migrations.forEach(function(col) {
+        try { db.exec('ALTER TABLE characters ADD COLUMN ' + col + ' TEXT'); } catch (_) {}
+    });
+
     db.exec(`
         CREATE TABLE IF NOT EXISTS characters (
             id TEXT PRIMARY KEY,

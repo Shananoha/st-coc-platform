@@ -239,7 +239,13 @@ router.get('/scene/current', (_req, res) => {
         const characterSummary = req.body.characterSummary || '一名调查员';
         const systemPrompt = buildSystemPrompt(scene, characterSummary);
         const chatMessages = [...messages];
-        chatMessages.unshift({ role: 'system', content: systemPrompt });
+        if (req.body.skipSystemPrompt) {
+            if (req.body.characterPersonality) {
+                chatMessages.unshift({ role: 'system', content: '[角色设定]\n' + req.body.characterPersonality + '\n\n你正在扮演以上角色。请始终按照角色设定行事——说话、思考、行动都要符合角色的人设。你扮演的角色不是KP守秘人，不要裁定规则或叙述场景。' });
+            }
+        } else {
+            chatMessages.unshift({ role: 'system', content: systemPrompt });
+        }
         if (req.body.checkResult) {
             const cr = req.body.checkResult;
             const levelNames = {critical:'大成功',extreme:'极难成功',hard:'困难成功',regular:'成功'};
