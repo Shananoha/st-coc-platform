@@ -380,12 +380,36 @@ router.get('/scene/current', (_req, res) => {
         }
     });
 
-    // SAVE MANAGEMENT
+    // API CONFIG - expose ST's global model configuration
+    router.get('/api-config', (_req, res) => {
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const stRoot = path.join(__dirname, '..', '..');
+            let apiKey = '';
+            // Read secrets.json for API key
+            const secretsPath = path.join(stRoot, 'data', 'default-user', 'secrets.json');
+            if (fs.existsSync(secretsPath)) {
+                const s = JSON.parse(fs.readFileSync(secretsPath, 'utf8'));
+                apiKey = s.api_key_custom || s.api_key_openai || '';
+            }
+            // Default models that work with ST's configured API (opencode-go proxies all of these)
+            const availableModels = [
+                { id: 'deepseek-pro', name: 'deepseek-v4-pro', url: '', key: apiKey, provider: 'st' },
+                { id: 'deepseek-flash', name: 'deepseek-v4-flash', url: '', key: apiKey, provider: 'st' },
+                { id: 'kimi', name: 'kimi-k2.6', url: '', key: apiKey, provider: 'st' },
+                { id: 'qwen', name: 'qwen3.7-max', url: '', key: apiKey, provider: 'st' }
+            ];
+            res.json({ endpoint: '', model: '', hasKey: !!apiKey, availableModels });
+        } catch (e) {
+            res.json({ error: e.message, availableModels: [] });
+        }
+    });
     router.post('/save', (req, res) => {
         const { name, charId, charName, hp, hpMax, san, sanMax, mp, mpMax, sceneId, sceneName } = req.body;
         if (!name) return res.status(400).json({ error: 'name required' });
         if (!fs.existsSync(saveDir)) fs.mkdirSync(saveDir, { recursive: true });
-        const id = 'save_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+        const id = req.body.id || ('save_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8));
         const saveData = {
             id, name,
             created: new Date().toISOString(),
