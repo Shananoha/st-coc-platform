@@ -17,6 +17,22 @@ function estimateTokens(text) {
 }
 
 /**
+ * Truncate text at the last sentence boundary within maxLen characters.
+ * Falls back to maxLen if no boundary found.
+ */
+function truncateToSentence(text, maxLen) {
+    if (text.length <= maxLen) return text;
+    const slice = text.substring(0, maxLen);
+    // Find last sentence boundary (Chinese or English punctuation)
+    const match = slice.match(/.*[。！？.!?\n]/);
+    if (match) return match[0].trim();
+    // Fallback: truncate at last space
+    const lastSpace = slice.lastIndexOf(' ');
+    if (lastSpace > maxLen * 0.5) return slice.substring(0, lastSpace) + '…';
+    return slice + '…';
+}
+
+/**
  * Layered context manager for CoC sessions.
  */
 class ContextManager {
@@ -149,10 +165,15 @@ class ContextManager {
 
         const summaryContent = toSummarize
             .filter(m => m.role !== 'system')
-            .map(m => `[${m.role}] ${m.content.substring(0, 150)}`)
+            .map(m => `[${m.role}] ${truncateToSentence(m.content, 150)}`)
             .join('\n');
 
-        this._summary = `[历史摘要 - ${toSummarize.length} 条消息]\n${summaryContent}\n\n关键事件请保留在记忆中。`;
+        const newBlock = `[历史摘要 - ${toSummarize.length} 条消息]\n${summaryContent}`;
+        if (this._summary) {
+            this._summary = this._summary.replace(/\n关键事件请保留在记忆中。$/, '') + '\n' + newBlock + '\n\n关键事件请保留在记忆中。';
+        } else {
+            this._summary = newBlock + '\n\n关键事件请保留在记忆中。';
+        }
         this._history = this._history.slice(-keepCount);
     }
 }

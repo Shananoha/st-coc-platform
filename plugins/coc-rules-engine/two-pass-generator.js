@@ -12,15 +12,15 @@
  * @returns {Promise<{mechanicsResult: string, narrativeResult: string}>}
  */
 async function twoPassSkillCheck(checkResult, context) {
-    const { generateFn, currentScene, characterSummary } = context;
-    const { skillName, skillValue, roll, level, success } = checkResult;
+    const { generateFn, currentScene, characterSummary, failForward } = context;
+    const { skillName, skillValue, roll, level, success, meets_difficulty } = checkResult;
 
     // Pass 1: Generate locked mechanism description (no narrative flourishes)
-    const pass1Prompt = buildPass1Prompt({ skillName, skillValue, roll, level, success });
+    const pass1Prompt = buildPass1Prompt({ skillName, skillValue, roll, level, success, meets_difficulty });
     const pass1Output = await generateFn(pass1Prompt, { maxTokens: 100, temperature: 0.3 });
 
     // Pass 2: Generate immersive narrative based on locked mechanism
-    const pass2Prompt = buildPass2Prompt(pass1Output, { currentScene, characterSummary });
+    const pass2Prompt = buildPass2Prompt(pass1Output, { currentScene, characterSummary, failForward });
     const pass2Output = await generateFn(pass2Prompt, { maxTokens: 500, temperature: 0.8 });
 
     return {
@@ -53,8 +53,8 @@ async function twoPassSanCheck(sanResult, context) {
 
 // ==================== PROMPT BUILDERS ====================
 
-function buildPass1Prompt({ skillName, skillValue, roll, level, success }) {
-    const resultText = success
+function buildPass1Prompt({ skillName, skillValue, roll, level, success, meets_difficulty }) {
+    const resultText = success && meets_difficulty !== false
         ? `成功 (${level})`
         : (level === 'fumble' ? '大失败' : '失败');
 
@@ -87,7 +87,7 @@ function buildSanPass1Prompt({ passed, roll, currentSAN, sanLost, newSAN, reason
 ${insanity ? '疯狂状态需要在叙述中体现，但不要过度戏剧化。' : ''}`;
 }
 
-function buildPass2Prompt(mechanicsResult, { currentScene = '', characterSummary = '' }) {
+function buildPass2Prompt(mechanicsResult, { currentScene = '', characterSummary = '', failForward = '' }) {
     return `[守密人叙述指令]
 
 你是克苏鲁的呼唤的守密人(KP)。基于以下机制描述，扩写为沉浸式叙述。
@@ -101,7 +101,7 @@ ${characterSummary ? `调查员状态：${characterSummary}` : ''}
 - 使用感官细节（气味、温度、材质、声音）
 - 展示而非告知。不说"你感到恐惧"，而说"你的手心渗出冷汗"
 - 保持 cosmic horror 的语调——恐惧来自认知，而非怪物
-- ${mechanicsResult.includes('失败') || mechanicsResult.includes('大失败') ? '失败不等于死胡同。暗示其他可能性或带来有意义的后果。' : ''}
+- ${(mechanicsResult.includes('失败') || mechanicsResult.includes('大失败')) ? (failForward || '失败不等于死胡同。暗示其他可能性或带来有意义的后果。') : ''}
 - 长度控制在 3-5 句`;
 }
 

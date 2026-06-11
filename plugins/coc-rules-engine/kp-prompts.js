@@ -99,7 +99,7 @@ ${characterSummary}
     if (scene.san_triggers && scene.san_triggers.length > 0) {
         prompt += '## ⚠️ SAN 触发条件\n';
         scene.san_triggers.forEach(s => prompt += `- ${s.reason} (损失: ${s.loss})\n`);
-        prompt += '\n记住: 触发 SAN check 时，在回复末尾包含 [SAN_CHECK: reason="原因", loss="公式"]\n';
+        prompt += '\n记住: 当需要判定技能检定时，先描述检定结果（成功/失败及等级），然后在回复末尾包含 [SKILL_CHECK: skill="技能名"]。系统会自动掷骰。SAN check 同理使用 [SAN_CHECK: reason="原因", loss="公式"]\n';
         prompt += '例如: [SAN_CHECK: reason="第一次看到怪物", loss="0/1d6"]\n\n';
     }
 

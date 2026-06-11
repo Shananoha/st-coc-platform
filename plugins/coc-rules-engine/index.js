@@ -5,15 +5,26 @@
 const express = require('express');
 const { resolveSkillCheck, rollDamage } = require('./dice-engine');
 const { resolveSanCheck } = require('./san-engine');
-const { createCharacter, getCharacter, updateSAN, updateHP, setSkills, addEquipment } = require('./database');
+const { createCharacter, getCharacter, updateSAN, updateHP, setSkills, addEquipment, createCharacterFull } = require('./database');
 const { buildPass1Prompt, buildPass2Prompt, buildSanPass1Prompt } = require('./two-pass-generator');
-const { getCurrentScene, getScene, transitionTo, discoverClue, getContextForAI, getDiscoveredClues, advanceTime, reset } = require('./scene-manager');
+const { getCurrentScene, getScene, transitionTo, discoverClue, getContextForAI, getDiscoveredClues, advanceTime, reset, loadModule } = require('./scene-manager');
 const { buildSystemPrompt, buildCharacterSummary } = require('./kp-prompts');
+const { ContextManager } = require('./context-manager');
 const fs = require('fs');
 const path = require('path');
 const saveDir = path.join(__dirname, '..', '..', 'data', 'coc', 'saves');
 // Ensure save directory exists
 if (!fs.existsSync(saveDir)) { fs.mkdirSync(saveDir, { recursive: true }); }
+
+const VALID_ID_RE = /^[a-zA-Z0-9_-]+$/;
+
+function validateId(id, res) {
+    if (!VALID_ID_RE.test(id)) {
+        res.status(400).json({ error: 'Invalid ID format' });
+        return false;
+    }
+    return true;
+}
 
 const info = {
     id: 'coc-rules-engine',
@@ -83,7 +94,10 @@ async function init(router) {
         const t1 = Math.floor(Math.random() * 10), t2 = Math.floor(Math.random() * 10);
         const units = Math.floor(Math.random() * 10);
         const adjTens = (type === 'bonus') ? Math.min(t1, t2) : Math.max(t1, t2);
-        res.json({ type, originalRolls: [t1 * 10 + units, t2 * 10 + units], adjustedRoll: adjTens * 10 + units });
+        const roll1 = (t1 * 10 + units) || 100;
+        const roll2 = (t2 * 10 + units) || 100;
+        const adjustedRoll = (adjTens * 10 + units) || 100;
+        res.json({ type, originalRolls: [roll1, roll2], adjustedRoll });
     });
 
     // ==================== CHARACTER MANAGEMENT ====================
@@ -150,9 +164,15 @@ async function init(router) {
             return res.status(400).json({ error: 'skillName and skillValue required' });
         }
         const actualRoll = roll || Math.floor(Math.random() * 100) + 1;
-        const result = resolveSkillCheck(skillValue, actualRoll);
+        const result = resolveSkillCheck(skillValue, actualRoll, req.body.difficulty || 'regular');
+        let failForward = '';
+        if (req.body.clueId) {
+            const scene = getCurrentScene();
+            const clue = scene.clues?.find(c => c.id === req.body.clueId);
+            if (clue && clue.fail_forward) failForward = clue.fail_forward;
+        }
         const pass1 = buildPass1Prompt({ skillName, skillValue, roll: actualRoll, ...result });
-        const pass2 = buildPass2Prompt(pass1, { currentScene: req.body.currentScene || '' });
+        const pass2 = buildPass2Prompt(pass1, { currentScene: req.body.currentScene || '', failForward });
         res.json({ checkResult: { roll: actualRoll, ...result }, pass1, pass2 });
     });
 
@@ -238,20 +258,45 @@ router.get('/scene/current', (_req, res) => {
         const scene = getCurrentScene();
         const characterSummary = req.body.characterSummary || '一名调查员';
         const systemPrompt = buildSystemPrompt(scene, characterSummary);
-        const chatMessages = [...messages];
+        // ContextManager handles layering: System → Sticky → Summary → History → Ephemeral
+        const cm = new ContextManager({ maxTokens: 28000 });
+        cm.setSystem(systemPrompt);
+        for (var i = 0; i < messages.length; i++) {
+            cm.addMessage(messages[i].role, messages[i].content);
+        }
+        var built = cm.build();
+        var chatMessages = built.messages;
+
         if (req.body.skipSystemPrompt) {
-            if (req.body.characterPersonality) {
-                chatMessages.unshift({ role: 'system', content: '[角色设定]\n' + req.body.characterPersonality + '\n\n你正在扮演以上角色。请始终按照角色设定行事——说话、思考、行动都要符合角色的人设。你扮演的角色不是KP守秘人，不要裁定规则或叙述场景。' });
+            if (chatMessages.length > 0 && chatMessages[0].role === 'system') {
+                if (req.body.characterPersonality) {
+                    chatMessages[0] = { role: 'system', content: '[角色设定]\n' + req.body.characterPersonality + '\n\n你正在扮演以上角色。请始终按照角色设定行事——说话、思考、行动都要符合角色的人设。你扮演的角色不是KP守秘人，不要裁定规则或叙述场景。' };
+                } else {
+                    chatMessages.shift();
+                }
             }
-        } else {
-            chatMessages.unshift({ role: 'system', content: systemPrompt });
         }
         if (req.body.checkResult) {
             const cr = req.body.checkResult;
             const levelNames = {critical:'大成功',extreme:'极难成功',hard:'困难成功',regular:'成功'};
-            const resultLabel = cr.success ? (levelNames[cr.level]||'成功') : (cr.level==='fumble'?'大失败':'失败');
+            var resultLabel;
+            if (cr.success && cr.meets_difficulty !== false) {
+                resultLabel = levelNames[cr.level] || '成功';
+            } else if (cr.level === 'fumble') {
+                resultLabel = '大失败';
+            } else {
+                resultLabel = '失败';
+            }
             const lastMsg = chatMessages[chatMessages.length - 1];
-            lastMsg.content = '[检定结果锁定 - 不可修改]: '+cr.skillName+'检定 '+resultLabel+' (掷出'+cr.roll+'/'+cr.skillValue+'%)\n\n[调查员行动]: '+lastMsg.content+'\n\n请以守秘人身份，先陈述上述检定结果（一句话），然后展开沉浸式叙事。';
+            let checkResultText = '[检定结果锁定 - 不可修改]: '+cr.skillName+'检定 '+resultLabel+' (掷出'+cr.roll+'/'+cr.skillValue+'%)';
+            if (cr.clueId && cr.meets_difficulty === false) {
+                const scene = getCurrentScene();
+                const clue = scene.clues?.find(c => c.id === cr.clueId);
+                if (clue && clue.fail_forward) {
+                    checkResultText += '\n[线索推进 - 失败但有进展]: '+clue.fail_forward;
+                }
+            }
+            lastMsg.content = checkResultText + '\n\n[调查员行动]: '+lastMsg.content+'\n\n请以守秘人身份，先陈述上述检定结果（一句话），然后展开沉浸式叙事。';
         }
         if (req.body.sanResult) {
             const sr = req.body.sanResult;
@@ -267,7 +312,7 @@ router.get('/scene/current', (_req, res) => {
         const requestBaseUrl = req.body.baseUrl || null;
 
         // Handle character personality — prepend as system message before KP prompt
-        if (req.body.characterPersonality) {
+        if (!req.body.skipSystemPrompt && req.body.characterPersonality) {
             chatMessages.unshift({ role: 'system', content: '[角色人格设定]\n' + req.body.characterPersonality + '\n请完全按照以上设定扮演此角色。' });
         }
 
@@ -406,7 +451,7 @@ router.get('/scene/current', (_req, res) => {
         }
     });
     router.post('/save', (req, res) => {
-        const { name, charId, charName, hp, hpMax, san, sanMax, mp, mpMax, sceneId, sceneName } = req.body;
+        const { name, charId, charName, hp, hpMax, san, sanMax, mp, mpMax, sceneId, sceneName, chatHistory } = req.body;
         if (!name) return res.status(400).json({ error: 'name required' });
         if (!fs.existsSync(saveDir)) fs.mkdirSync(saveDir, { recursive: true });
         const id = req.body.id || ('save_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8));
@@ -419,7 +464,8 @@ router.get('/scene/current', (_req, res) => {
             san: san || 0, sanMax: sanMax || 0,
             mp: mp || 0, mpMax: mpMax || 0,
             sceneId: sceneId || '',
-            sceneName: sceneName || ''
+            sceneName: sceneName || '',
+            chatHistory: chatHistory || []
         };
         try {
             fs.writeFileSync(path.join(saveDir, id + '.json'), JSON.stringify(saveData, null, 2));
@@ -447,6 +493,7 @@ router.get('/scene/current', (_req, res) => {
 
     router.get('/save/:id', (req, res) => {
         try {
+            if (!validateId(req.params.id, res)) return;
             const filePath = path.join(saveDir, req.params.id + '.json');
             if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Save not found' });
             const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -458,6 +505,7 @@ router.get('/scene/current', (_req, res) => {
 
     router.delete('/save/:id', (req, res) => {
         try {
+            if (!validateId(req.params.id, res)) return;
             const filePath = path.join(saveDir, req.params.id + '.json');
             if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Save not found' });
             fs.unlinkSync(filePath);
@@ -471,6 +519,7 @@ router.get('/scene/current', (_req, res) => {
         const { name } = req.body;
         if (!name) return res.status(400).json({ error: 'name required' });
         try {
+            if (!validateId(req.params.id, res)) return;
             const filePath = path.join(saveDir, req.params.id + '.json');
             if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Save not found' });
             const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -492,6 +541,15 @@ router.get('/scene/current', (_req, res) => {
             res.json({ success: true });
         } catch (e) {
             res.status(500).json({ error: e.message });
+        }
+    });
+
+    router.post('/character/full', (req, res) => {
+        try {
+            const char = createCharacterFull(req.body);
+            res.status(201).json(char);
+        } catch (e) {
+            res.status(400).json({ error: e.message });
         }
     });
 
@@ -557,7 +615,7 @@ router.get('/scene/current', (_req, res) => {
             var mods = files.map(function(f) {
                 try {
                     var d = JSON.parse(fs.readFileSync(path.join(moduleDir, f), 'utf8'));
-                    return { id: d.id, name: d.meta.name, era: d.meta.era, author: d.meta.author, difficulty: d.meta.difficulty, imported: d.imported };
+                    return { id: f.replace('.json', ''), name: d.meta.name, era: d.meta.era, author: d.meta.author, difficulty: d.meta.difficulty, description: d.meta.description, scenes: Object.keys(d.scenes || {}).length };
                 } catch (e) { return null; }
             }).filter(Boolean);
             res.json({ modules: mods });
@@ -565,12 +623,29 @@ router.get('/scene/current', (_req, res) => {
     });
 
     router.get('/module/:id', (req, res) => {
+        if (!validateId(req.params.id, res)) return;
         var fp = path.join(moduleDir, req.params.id + '.json');
         if (!fs.existsSync(fp)) return res.status(404).json({ error: 'Module not found' });
         res.json(JSON.parse(fs.readFileSync(fp, 'utf8')));
     });
 
+    router.post('/module/:id/activate', (req, res) => {
+        if (!validateId(req.params.id, res)) return;
+        try {
+            var fp = path.join(moduleDir, req.params.id + '.json');
+            if (!fs.existsSync(fp)) return res.status(404).json({ error: 'Module not found' });
+            var data = JSON.parse(fs.readFileSync(fp, 'utf8'));
+            if (!data.scenes) return res.status(400).json({ error: 'Module has no scenes data' });
+            var result = loadModule(data.scenes);
+            if (result.error) return res.status(400).json(result);
+            res.json({ activated: true, startScene: result.startScene });
+        } catch (e) {
+            res.status(400).json({ error: e.message });
+        }
+    });
+
     router.delete('/module/:id', (req, res) => {
+        if (!validateId(req.params.id, res)) return;
         var fp = path.join(moduleDir, req.params.id + '.json');
         if (!fs.existsSync(fp)) return res.status(404).json({ error: 'Module not found' });
         fs.unlinkSync(fp);
