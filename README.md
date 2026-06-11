@@ -90,10 +90,19 @@
 | 🤖 AI 托管角色 | 角色交给 AI 代控，独立 Agent 人格 |
 | ▶️ 自动模式 | KP 与所有 AI 角色自动互动跑团（最多 15 轮） |
 | 🎲 骰子命令 | `.ra 技能` `.rc 属性` `.r XdY` `.rd` |
-| ⚔️ 战斗系统 | 回合制战斗，伤害/闪避/格挡 |
+| ⚔️ 战斗系统 | 回合制攻击/闪避/格挡/伤害加值/重创/昏迷/护甲/贯穿/多打一 |
 | 💾 存档管理 | 多存档槽 + 自动存档，JSON 存储，含聊天记录 |
 | 🔌 模型管理 | 统一供应商列表，KP/角色共用，兼容任何 OpenAI API |
 | 📜 游戏日志 | 全宽浮窗日志面板，完整对话记录 |
+
+### 模组系统
+
+| 功能 | 说明 |
+|------|------|
+| 📦 模组导入 | JSON 格式，前后端一致 schema（scenes/npcs/clues/san_triggers） |
+| 🔄 模组切换 | 游戏中实时切换模组，场景/NPC/线索同步加载 |
+| 💾 模组持久化 | 存档中保存模组 ID，读档恢复模组 |
+| 📋 默认模组 | 内置《鬼屋 (The Haunting)》完整模组，含 3 场景 2 NPC 6 线索 |
 
 ### 角色系统
 
@@ -122,10 +131,12 @@
 ```bash
 git clone https://github.com/Shananoha/st-coc-platform.git
 cd st-coc-platform
-./setup.sh ~/SillyTavern
+./deploy.sh ~/SillyTavern    # or: ./deploy.sh /path/to/your/SillyTavern
 ```
 
-重启 SillyTavern，打开 `http://localhost:8000/st-coc-ui.html`。
+打开 `http://localhost:8000/st-coc-ui.html`。部署脚本会自动重启 ST 服务器。
+
+> **注意**: SillyTavern 服务端必须已安装并运行（或已配置好 API 密钥）。部署脚本会杀掉旧进程并以 `--listen` 模式重启。
 
 ---
 
@@ -177,6 +188,38 @@ st-coc-platform/
 ├── tests/                        # Jest 测试
 └── docs/                         # 开发文档
 ```
+
+## API 参考
+
+服务端插件提供 ~40 个 REST API 端点，挂载于 `/api/plugins/coc-rules-engine`。
+
+| 分组 | 端点 | 方法 | 说明 |
+|------|------|------|------|
+| 生成 | `/generate/chat` | POST | AI 对话（支持多模型/角色/SSE） |
+| 生成 | `/generate/skill-check-prompt` | POST | Two-Pass 技能检定提示词 |
+| 场景 | `/scene/current` | GET | 当前场景含 NPC/线索/恐怖等级 |
+| 场景 | `/scene/:id/transition` | POST | 场景转换 |
+| 场景 | `/scene/clue/:id` | POST | 发现线索 |
+| 角色 | `/character` | POST | 创建角色 |
+| 角色 | `/character/full` | POST | 事务性角色创建 (角色+技能+装备) |
+| 骰子 | `/roll/skill-check` | POST | 技能/属性检定 |
+| 骰子 | `/roll/san-check` | POST | SAN 检定 |
+| 骰子 | `/roll/damage` | POST | 伤害投骰 |
+| 骰子 | `/roll/bonus` | POST | 奖励/惩罚骰 |
+| 模组 | `/module/list` | GET | 模组列表 |
+| 模组 | `/module/import` | POST | 导入模组 |
+| 模组 | `/module/:id/activate` | POST | 激活模组 |
+| 存档 | `/save` | POST | 创建存档 |
+| 存档 | `/save/list` | GET | 存档列表 |
+| 配置 | `/api-config` | GET | 模型供应商列表 |
+
+## 已知限制
+
+- **模组格式**: 当前仅支持 JSON 导入（通过 `prompt()` 粘贴），文件上传 UI 待建设
+- **AI 角色技能检定**: AI 角色可描述行动意图，但不会自动触发技能检定（需玩家手动执行）
+- **CSRF 保护**: POST 端点受 ST CSRF 保护，curl 调用需携带 CSRF token；浏览器正常
+- **MOV 10 档位**: DEX+SIZ ≥ 100 → MOV 10 已修复
+- **信用评级**: CoC 7e 5 级制已对齐
 
 ## License
 
