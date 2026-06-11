@@ -77,7 +77,7 @@
       "name": "警察",
       "era": "1920s",
       "credit_range": [9, 30],
-      "skill_formula": { "base": "EDU", "multiplier": 2 },
+      "skill_formula": { "base": "EDU", "multiplier": 2, "base2": "DEX", "multiplier2": 2 },
       "occupational_skills": [
         "格斗(斗殴)", "射击(手枪)", "法律", "侦查",
         "心理学", "汽车驾驶", "追踪", "急救"
@@ -101,7 +101,7 @@
       "name": "业余艺术爱好者",
       "era": "1920s",
       "credit_range": [50, 99],
-      "skill_formula": { "base": "EDU", "multiplier": 2 },
+      "skill_formula": { "base": "EDU", "multiplier": 2, "base2": "APP", "multiplier2": 2 },
       "occupational_skills": [
         "信用评级", "外语", "汽车驾驶", "射击(手枪)",
         "心理学", "话术"

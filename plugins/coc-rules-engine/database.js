@@ -238,8 +238,9 @@ function getSkills(characterId) {
 }
 
 function addEquipment(id, items) {
-    const stmt = db.prepare('INSERT OR REPLACE INTO character_equipment (character_id, name, quantity) VALUES (?, ?, ?)');
-    const insertMany = db.transaction((equipItems) => {
+    const d = initDB();
+    const stmt = d.prepare('INSERT OR REPLACE INTO character_equipment (character_id, name, quantity) VALUES (?, ?, ?)');
+    const insertMany = d.transaction((equipItems) => {
         for (const item of equipItems) {
             stmt.run(id, item.name, item.quantity || 1);
         }
@@ -247,4 +248,58 @@ function addEquipment(id, items) {
     insertMany(items);
 }
 
-module.exports = { createCharacter, getCharacter, updateSAN, updateHP, setSkills, addEquipment, getSkills };
+/**
+ * Create character, skills, and equipment atomically.
+ * On any failure, rolls back everything.
+ */
+function createCharacterFull(data) {
+    const d = initDB();
+    const charData = data.character || {};
+    const skillsData = data.skills || [];
+    const equipData = data.equipment || [];
+    
+    const id = charData.id || 'char_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    
+    const txn = d.transaction(function(charData, skillsData, equipData) {
+        // Insert character
+        const charDefaults = {
+            era: '1920s', occupation_code: null, occupation_name: null,
+            str: 50, con: 50, siz: 50, dex: 50, app: 50,
+            int_: 50, pow: 50, edu: 50, luk: 50,
+            hp_max: 10, hp_current: 10, mp_max: 10, mp_current: 10,
+            san_max: 99, san_current: 50, san_start: 50,
+            db: 0, build: 0, mov: 7, credit_rating: null, cash: 0, assets: 0,
+            personal_description: null, ideology: null,
+            significant_person: null, meaningful_location: null,
+            treasured_possession: null, traits: null,
+            injuries_scars: null, phobias_manias: null, background_story: null,
+            key_connection: null,
+            age: null, sex: null, residence: null, birthplace: null
+        };
+        
+        const char = { id, ...charDefaults, ...charData };
+        
+        d.prepare('INSERT INTO characters (id, name, occupation_name, hp_max, hp_current, mp_max, mp_current, san_max, san_current, san_start, str, con, siz, dex, app, int_, pow, edu, luk, db, build, mov, credit_rating, age, sex, birthplace, residence, cash, assets, personal_description, ideology, significant_person, meaningful_location, treasured_possession, traits, injuries_scars, phobias_manias, background_story, key_connection) VALUES (@id, @name, @occupation_name, @hp_max, @hp_current, @mp_max, @mp_current, @san_max, @san_current, @san_start, @str, @con, @siz, @dex, @app, @int_, @pow, @edu, @luk, @db, @build, @mov, @credit_rating, @age, @sex, @birthplace, @residence, @cash, @assets, @personal_description, @ideology, @significant_person, @meaningful_location, @treasured_possession, @traits, @injuries_scars, @phobias_manias, @background_story, @key_connection)').run(char);
+        
+        // Insert skills
+        var insertSkill = d.prepare('INSERT OR REPLACE INTO character_skills (character_id, skill_name, base_value, occupation_points, interest_points, growth_marks, current_value) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        for (var i = 0; i < skillsData.length; i++) {
+            var s = skillsData[i];
+            insertSkill.run(id, s.name, s.base || 1, s.occupation || 0, s.interest || 0, s.growth_marks || 0, s.value);
+        }
+        
+        // Insert equipment
+        var insertEquip = d.prepare('INSERT OR REPLACE INTO character_equipment (character_id, name, quantity) VALUES (?, ?, ?)');
+        for (var j = 0; j < equipData.length; j++) {
+            var e = equipData[j];
+            insertEquip.run(id, e.name, e.quantity || 1);
+        }
+    });
+    
+    txn(charData, skillsData, equipData);
+    
+    // Return the created character
+    return getCharacter(id);
+}
+
+module.exports = { createCharacter, getCharacter, updateSAN, updateHP, setSkills, addEquipment, getSkills, createCharacterFull };
