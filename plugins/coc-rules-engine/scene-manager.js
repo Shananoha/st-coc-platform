@@ -1,7 +1,7 @@
 // Scene Manager - hardcoded 3-scene The Haunting module
 // In Phase 4+ this will be replaced by the YAML module engine
 
-const SCENES = {
+const DEFAULT_SCENES = {
     intro: {
         id: 'intro',
         name: '委托人到访',
@@ -75,14 +75,26 @@ Walter Corbitt 从棺材里坐了起来。`,
     }
 };
 
+let _scenes = JSON.parse(JSON.stringify(DEFAULT_SCENES));
+
 // ==================== STATE ====================
 let currentScene = 'intro';
 let discoveredClues = [];
 let gameTime = '第一天 14:00';
 let visitedScenes = [];
 
+function loadModule(moduleScenes) {
+    if (!moduleScenes || typeof moduleScenes !== 'object') return { error: 'Invalid module scenes data' };
+    _scenes = JSON.parse(JSON.stringify(moduleScenes));
+    currentScene = Object.keys(_scenes)[0];
+    discoveredClues = [];
+    visitedScenes = [];
+    initScene(currentScene);
+    return { ok: true, startScene: currentScene };
+}
+
 function initScene(sceneId) {
-    const scene = SCENES[sceneId];
+    const scene = _scenes[sceneId];
     if (!scene) return;
     if (scene.clues) {
         scene.clues.filter(c => c.trigger === 'auto').forEach(c => {
@@ -98,15 +110,15 @@ function getCurrentScene() {
         initScene(currentScene);
         visitedScenes.push(currentScene);
     }
-    return SCENES[currentScene];
+    return _scenes[currentScene];
 }
-function getScene(id) { return SCENES[id] || null; }
+function getScene(id) { return _scenes[id] || null; }
 
 function transitionTo(sceneId) {
-    if (!SCENES[sceneId]) return { error: `Scene "${sceneId}" not found` };
+    if (!_scenes[sceneId]) return { error: `Scene "${sceneId}" not found` };
     const old = currentScene;
     currentScene = sceneId;
-    const scene = SCENES[sceneId];
+    const scene = _scenes[sceneId];
     return { from: old, to: sceneId, scene: { id: scene.id, name: scene.name, dread: scene.dread }, newDiscoveries: [], sanTriggers: scene.san_triggers || [] };
 }
 
@@ -114,8 +126,8 @@ function discoverClue(clueId) {
     if (discoveredClues.includes(clueId)) return null;
     discoveredClues.push(clueId);
     // Search all scenes for the clue
-    for (const sid of Object.keys(SCENES)) {
-        const found = SCENES[sid].clues?.find(c => c.id === clueId);
+    for (const sid of Object.keys(_scenes)) {
+        const found = _scenes[sid].clues?.find(c => c.id === clueId);
         if (found) return found;
     }
     return null;
@@ -124,7 +136,7 @@ function discoverClue(clueId) {
 function getDiscoveredClues() { return discoveredClues; }
 
 function getContextForAI() {
-    const scene = SCENES[currentScene];
+    const scene = _scenes[currentScene];
     const context = [];
     context.push(`[场景] ${scene.name} (恐怖等级: ${scene.dread}/5)`);
     context.push(`[时间] ${gameTime}`);
@@ -137,8 +149,8 @@ function getContextForAI() {
     if (discoveredClues.length > 0) {
         context.push('[已发现的线索]');
         discoveredClues.forEach(cid => {
-            for (const sid of Object.keys(SCENES)) {
-                const c = SCENES[sid].clues?.find(x => x.id === cid);
+            for (const sid of Object.keys(_scenes)) {
+                const c = _scenes[sid].clues?.find(x => x.id === cid);
                 if (c && c.success) { context.push(`- ${c.success.substring(0, 80)}...`); break; }
             }
         });
@@ -157,10 +169,11 @@ function advanceTime(minutes) {
 }
 
 function reset() {
+    _scenes = JSON.parse(JSON.stringify(DEFAULT_SCENES));
     currentScene = 'intro';
     discoveredClues = [];
     visitedScenes = [];
     gameTime = '第一天 14:00';
 }
 
-module.exports = { getCurrentScene, getScene, transitionTo, discoverClue, getDiscoveredClues, getContextForAI, advanceTime, reset, SCENES };
+module.exports = { getCurrentScene, getScene, transitionTo, discoverClue, getDiscoveredClues, getContextForAI, advanceTime, reset, loadModule, DEFAULT_SCENES };
