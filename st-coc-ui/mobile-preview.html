@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mobile Preview v2 — ST-CoC (Android)</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0e14;color:#d4c5a9;font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;padding:20px}
+h1{color:#c4a35a;font-family:Georgia,serif;margin-bottom:4px;font-size:20px}
+.sub{color:#7a7265;font-size:12px;margin-bottom:8px}
+.note{color:#c75050;font-size:11px;margin-bottom:16px;background:rgba(199,80,80,0.08);padding:6px 12px;border-radius:5px;max-width:500px;text-align:center}
+
+.phone{width:375px;height:750px;border:3px solid #1a1f28;border-radius:36px;overflow:hidden;background:#0d1117;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.6)}
+.phone-notch{height:24px;background:#06080c;display:flex;align-items:center;justify-content:center}
+.app{display:grid;grid-template-columns:1fr;grid-template-rows:36px auto 1fr auto 58px;height:calc(100% - 24px)}
+
+.header{background:#0a0e14;border-bottom:1px solid rgba(139,125,107,0.08);display:flex;align-items:center;justify-content:space-between;padding:0 12px}
+.header-title{font-family:Georgia,serif;font-size:12px;color:#c4a35a;letter-spacing:1px}
+.header-btn{font-size:10px;color:#8b7d6b;background:none;border:1px solid rgba(139,125,107,0.15);border-radius:3px;padding:4px 8px;cursor:pointer}
+
+.party{overflow-x:auto;overflow-y:hidden;border-bottom:1px solid rgba(139,125,107,0.08);white-space:nowrap;padding:6px 8px;display:flex;gap:6px}
+.party::-webkit-scrollbar{height:0}
+.char-chip{min-width:130px;flex-shrink:0;background:#13181f;border:1px solid rgba(139,125,107,0.15);border-radius:5px;padding:6px 8px;cursor:pointer}
+.char-chip.active{border-color:rgba(196,163,90,0.45)}
+.char-name{font-size:11px;color:#d4c5a9;margin-bottom:2px}
+.char-bars{display:flex;gap:4px}
+.bar{flex:1;height:4px;border-radius:2px;background:rgba(0,0,0,0.3)}
+.bar-fill{height:100%;border-radius:2px}
+.hp .bar-fill{background:#c04040;width:85%}
+.san .bar-fill{background:#c4a35a;width:72%}
+.mp .bar-fill{background:#7b5ea7;width:60%}
+.char-hint{font-size:8px;color:#7a7265;margin-top:2px}
+
+.chat{overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.chat::-webkit-scrollbar{width:3px}
+.chat::-webkit-scrollbar-thumb{background:rgba(139,125,107,0.15);border-radius:2px}
+.kp{font-family:Georgia,serif;font-size:13px;line-height:1.7;color:#d4c5a9;padding:8px 10px;background:rgba(196,163,90,0.04);border-left:2px solid rgba(196,163,90,0.2);border-radius:0 5px 5px 0}
+.pl{align-self:flex-end;max-width:80%;font-size:12px;color:#e8dcc8;padding:8px 10px;background:rgba(196,163,90,0.06);border-right:2px solid rgba(196,163,90,0.3);border-radius:5px 0 0 5px}
+.sys{font-size:11px;color:#7a7265;text-align:center;padding:4px}
+.dice{font-size:11px;color:#8fbc6a;text-align:center;padding:6px;background:rgba(143,188,106,0.06);border:1px solid rgba(143,188,106,0.12);border-radius:5px}
+
+.input-area{border-top:1px solid rgba(139,125,107,0.08);padding:8px 10px;background:#0a0e14;display:flex;gap:8px}
+.input-field{flex:1;min-height:44px;background:#13181f;border:1px solid rgba(139,125,107,0.15);color:#d4c5a9;border-radius:5px;padding:6px 10px;font-size:15px;font-family:system-ui,sans-serif;resize:none}
+.send-btn{min-height:44px;min-width:56px;background:#c4a35a;border:none;color:#0d1117;border-radius:5px;font-size:13px;font-weight:600;cursor:pointer}
+
+.tabs{display:flex;border-top:1px solid rgba(139,125,107,0.08);background:#0a0e14}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:52px;border:none;background:none;color:#7a7265;cursor:pointer;font-size:9px;gap:1px;position:relative}
+.tab .ico{font-size:19px;line-height:1}
+.tab.on{color:#c4a35a}
+.tab.on::after{content:'';position:absolute;top:0;left:30%;right:30%;height:2px;background:#c4a35a;border-radius:0 0 2px 2px}
+
+.more-sheet{position:absolute;bottom:58px;left:0;right:0;background:#13181f;border-radius:12px 12px 0 0;border-top:2px solid rgba(196,163,90,0.3);padding:12px;display:none}
+.more-sheet.open{display:block}
+.more-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.more-btn{display:flex;align-items:center;gap:8px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(139,125,107,0.12);border-radius:8px;color:#d4c5a9;font-size:12px;cursor:pointer;min-height:48px}
+.more-btn .ico{font-size:18px}
+.more-hint{font-size:10px;color:#7a7265;margin-top:8px;text-align:center}
+
+.legend{margin-top:24px;display:flex;gap:16px;font-size:11px;color:#8b7d6b;flex-wrap:wrap;justify-content:center}
+.leg-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.leg-green{background:#8fbc6a}
+.leg-gold{background:#c4a35a}
+.leg-purple{background:#7b5ea7}
+</style>
+</head>
+<body>
+
+<h1>📱 ST-CoC — Mobile v2</h1>
+<p class="sub">375×750 · Android Chrome · 5 标签 · 全部 6 工具可访问</p>
+<p class="note">⚠️ 桌面 Safari 预览用 · Android 实机效果以 Chrome DevTools 375px 模式为准</p>
+
+<div class="phone">
+  <div class="phone-notch"></div>
+  <div class="app" style="position:relative">
+    
+    <div class="header">
+      <span class="header-title">ST-CoC</span>
+      <div><button class="header-btn">模组</button><button class="header-btn">💾</button><button class="header-btn">⚙️</button></div>
+    </div>
+
+    <div class="party">
+      <div class="char-chip active">
+        <div class="char-name">🔍 哈维·沃尔特斯</div>
+        <div class="char-bars"><div class="bar hp"><div class="bar-fill"></div></div><div class="bar san"><div class="bar-fill"></div></div><div class="bar mp"><div class="bar-fill"></div></div></div>
+        <div class="char-hint">HP 11/13 · SAN 55/60</div>
+      </div>
+      <div class="char-chip">
+        <div class="char-name">📚 玛格丽特</div>
+        <div class="char-bars"><div class="bar hp"><div class="bar-fill" style="width:90%"></div></div><div class="bar san"><div class="bar-fill" style="width:65%"></div></div><div class="bar mp"><div class="bar-fill" style="width:80%"></div></div></div>
+        <div class="char-hint">HP 10/11 · SAN 42/65</div>
+      </div>
+      <div class="char-chip"><div class="char-name">🗡️ +添加</div></div>
+    </div>
+
+    <div class="chat">
+      <div class="kp">诺特先生递给你们一张泛黄的照片——一栋殖民地风格的老旧宅邸。<br><br>"柯比特宅邸。我希望你们能调查一下。我的客户继承了这栋房产，但有些不太寻常的报告。"</div>
+      <div class="pl">"什么样不寻常的报告？"我接过照片。</div>
+      <div class="kp">他压低了声音。"租客都说房子里有不对劲的东西。上一任租客甚至没有回来拿押金。房主30年前死在地下室。死因……不明。"</div>
+      <div class="pl">我用侦查技能仔细观察这张照片。</div>
+      <div class="dice">🎲 侦查 · 42/65% · ✅ 成功</div>
+      <div class="sys">💡 输入 .ra 技能名 快速检定 · .help 全部命令</div>
+    </div>
+
+    <div class="input-area">
+      <textarea class="input-field" placeholder="输入消息或 .help 查看命令..." rows="3">我查看照片中房子的细节...</textarea>
+      <button class="send-btn">发送</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab on"><span class="ico">💬</span>对话</button>
+      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));this.classList.add('on');document.querySelector('.more-sheet')?.classList.remove('open')"><span class="ico">🎲</span>骰子</button>
+      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));this.classList.add('on');document.querySelector('.more-sheet')?.classList.remove('open')"><span class="ico">⚔️</span>战斗</button>
+      <button class="tab" onclick="document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));this.classList.add('on');document.querySelector('.more-sheet')?.classList.remove('open')"><span class="ico">📋</span>角色卡</button>
+      <button class="tab" id="more-tab" onclick="var s=document.querySelector('.more-sheet');if(s.classList.contains('open')){s.classList.remove('open');this.classList.remove('on')}else{s.classList.add('open');this.classList.add('on')}"><span class="ico">⚙️</span>更多</button>
+    </div>
+
+    <div class="more-sheet">
+      <div class="more-grid">
+        <button class="more-btn" onclick="document.querySelector('.more-sheet').classList.remove('open');document.getElementById('more-tab').classList.remove('on')"><span class="ico">📋</span>道具/物品</button>
+        <button class="more-btn" onclick="document.querySelector('.more-sheet').classList.remove('open');document.getElementById('more-tab').classList.remove('on')"><span class="ico">📝</span>笔记本</button>
+        <button class="more-btn" onclick="document.querySelector('.more-sheet').classList.remove('open');document.getElementById('more-tab').classList.remove('on')"><span class="ico">📊</span>参考资料</button>
+        <button class="more-btn" onclick="document.querySelector('.more-sheet').classList.remove('open');document.getElementById('more-tab').classList.remove('on')"><span class="ico">📜</span>游戏日志</button>
+      </div>
+      <div class="more-hint">点击空白区域关闭</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="legend">
+  <span><span class="leg-dot leg-gold"></span>5 按钮 — 对话/骰子/战斗/角色卡/更多</span>
+  <span><span class="leg-dot leg-green"></span>⚙️ 更多 = 📋道具 📝笔记 📊参考 📜日志</span>
+  <span><span class="leg-dot leg-purple"></span>58px 栏 · 48px 触摸 · 15px 输入防缩放</span>
+</div>
+
+<div style="margin-top:16px;font-size:11px;color:#7a7265;max-width:400px;text-align:center">
+  <b>Android：</b>Chrome 69+ safe-area · 底部导航栏兼容 · 无 iOS 18 fixed bug
+</div>
+
+</body>
+</html>
